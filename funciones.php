@@ -57,4 +57,43 @@ function insertarProducto($conn, $id_prod, $nombre, $precio, $id_cat){
 	}
 }
 
+/* 	- Función: "obtenerCodProd". 
+	- Parámetros: $conn.
+	- Funcionalidad: Determinar un código automático en función del código del último departamento registrado.
+	- Valor de retorno: $codigo.*/
+function obtenerCodAlmacen($conn){
+	$sql="SELECT max(NUM_ALMACEN) as maximo FROM almacen";
+
+	$stmt=$conn->prepare($sql);
+	$stmt->execute();
+
+	$maximo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+	$maximo=(int)$maximo["maximo"];
+	$codigo=$maximo+10;
+
+	return $codigo;
+}
+
+/* 	- Función: "insertarAlmacen". 
+	- Parámetros: $conn, $dni, $nombre, $apellidos, $fecha_nac, $salario.
+	- Funcionalidad: Insertar un nuevo producto en la tabla "producto".
+	- Valor de retorno: Ninguno.*/
+function insertarAlmacen($conn, $num_almacen, $localidad){
+	$conn->beginTransaction();
+
+	$stmt=$conn->prepare("INSERT INTO almacen (NUM_ALMACEN, LOCALIDAD) VALUES (:num_almacen, :localidad)");
+
+    $stmt->bindParam(':num_almacen', $num_almacen);
+    $stmt->bindParam(':localidad', $localidad);
+
+	$stmt->execute();
+
+	if(!$conn->commit()){
+		echo "Error: No se ha podido dar de alta el almac&#233;n.";
+	}else{
+		  echo "<p>Almac&#233;n dado de alta correctamente.</p>";
+	}
+}
+
 ?>
