@@ -96,4 +96,46 @@ function insertarAlmacen($conn, $num_almacen, $localidad){
 	}
 }
 
+    function altacat($conn,$categoria,$codigo){
+/* 	- Función: "insertarCategoria". 
+	- Parámetros: $conn,$categoria,$codigo.
+	- Funcionalidad: Insertar una nueva categoria en la tabla "categoria".
+	- Valor de retorno: Ninguno.
+	- Dev:Marco Santiago*/
+        try{
+            $sql="insert into categoria (ID_CATEGORIA,NOMBRE)values('$codigo','$categoria')";
+            $conn->exec($sql);
+
+            echo("Insert succesfully");
+        }
+        catch(PDOException $e) {
+            $test= "Error insertar categoria: -->".$e->getMessage()."</br>";
+        }
+    }
+    function gen_cod_cat($conn){
+/* 	- Función: "Generar codigo de categoria". 
+	- Parámetros: $conn.
+	- Funcionalidad: Generar el codigo de la categoria.
+	- Valor de retorno: Codigo.
+	- Dev:Marco Santiago*/
+        try{
+            $cod=null;
+            $cod = $conn->query("SELECT MAX(ID_CATEGORIA) as cod from categoria")->fetchAll(PDO::FETCH_ASSOC);
+            if ($cod==null)
+                $cod=0;
+            else{
+                $cod=$cod[0]["cod"];
+                $cod=substr($cod,-(count($cod-1)));
+            }
+            $cod="C".($cod+1);
+
+            echo "Gen cod succesfully<br>";
+    
+            return $cod;
+        }
+        catch(Exception $e) {
+            $test= "Error generar codigo -->".$e->getMessage()."</br>";
+        }
+    }
+
 ?>
