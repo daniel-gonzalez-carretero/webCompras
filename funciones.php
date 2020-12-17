@@ -97,7 +97,7 @@ function insertarAlmacen($conn, $num_almacen, $localidad){
 }
 
     function altacat($conn,$categoria,$codigo){
-/* 	- Función: "insertarCategoria". 
+/* 	- Función: "altacat". 
 	- Parámetros: $conn,$categoria,$codigo.
 	- Funcionalidad: Insertar una nueva categoria en la tabla "categoria".
 	- Valor de retorno: Ninguno.
@@ -115,7 +115,7 @@ function insertarAlmacen($conn, $num_almacen, $localidad){
         }
     }
     function gen_cod_cat($conn){
-/* 	- Función: "Generar codigo de categoria". 
+/* 	- Función: "gen_cod_cat". 
 	- Parámetros: $conn.
 	- Funcionalidad: Generar el codigo de la categoria.
 	- Valor de retorno: Codigo.
