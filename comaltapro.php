@@ -41,7 +41,6 @@
 			$id_cat = $_REQUEST["categorias"];
 
 			insertarProducto($conexion, $id_prod, $nombre, $precio, $id_cat);			
-			
 
 		}
 
@@ -49,8 +48,6 @@
 
 		echo "<p>Error: " . $e->getMessage() ."</p>";
 	}
-
-	$conn = null;
 			
 ?>
 			
