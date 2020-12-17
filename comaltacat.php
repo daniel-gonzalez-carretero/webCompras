@@ -9,8 +9,8 @@
             <label for="categoria">Categoria</label>
             <input type="text" name="categoria" /> <br />
             <?php
-                include_once("php/conexion.php");
-                include_once("php/funciones.php");
+                include_once("conexion.php");
+                include_once("funciones.php");
                 if (!isset($_POST) || empty($_POST)) {
             ?>
             <?php
