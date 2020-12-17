@@ -103,8 +103,10 @@ function insertarAlmacen($conn, $num_almacen, $localidad){
 	- Valor de retorno: Ninguno.
 	- Dev:Marco Santiago*/
         try{
-            $sql="insert into categoria (ID_CATEGORIA,NOMBRE)values('$codigo','$categoria')";
-            $conn->exec($sql);
+            $stmt = $conn->prepare("insert into categoria (ID_CATEGORIA,NOMBRE)values('$codigo','$categoria')");
+                $stmt->bindParam(':codigo', $codigo);
+                $stmt->bindParam(':categoria', $categoria);
+            $stmt->execute();
 
             echo("Insert succesfully");
         }
