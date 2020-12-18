@@ -158,4 +158,57 @@ function insertarAlmacen($conn, $num_almacen, $localidad){
         }
     }
 
+/* 	- Función: "obtenerTodo". 
+	- Parámetros: $conn.
+	- Funcionalidad: Obtener todo de una tabla.
+	- Valor de retorno: Array asociativo $seleccion.*/
+function obtenerTodo($conn, $tabla){
+	$sql="SELECT * FROM $tabla";
+
+	$stmt=$conn->prepare($sql);
+
+	$stmt->execute();
+	$seleccion = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+	return $seleccion;
+}
+
+/* 	- Función: "consultarStock". 
+	- Parámetros: $conn.
+	- Funcionalidad: Obtener el stock de un producto por cada almacén.
+	- Valor de retorno: Array asociativo $stock.*/
+function consultarStock($conn, $id_producto){
+	$sql="SELECT *, NOMBRE FROM almacena, producto WHERE almacena.ID_PRODUCTO = producto.ID_PRODUCTO and almacena.ID_PRODUCTO='$id_producto'";
+
+	$stmt=$conn->prepare($sql);
+	$stmt->execute();
+
+	$stock = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	
+	return $stock;
+}
+
+/* 	- Función: "verStock". 
+	- Parámetros: $conn.
+	- Funcionalidad: Visualizar el stock de un producto por cada almacén.
+	- Valor de retorno: Ninguno.*/
+function verStock($stock){
+	echo "<h1>Stock</h1>
+					<table border='1'>
+						<caption>" .$stock[0]["NOMBRE"] ." (" .$stock[0]["ID_PRODUCTO"] .")</caption>
+						<tr>
+							<th>Almacén</th>
+							<th>Cantidad</th>
+						</tr>";
+
+			foreach ($stock as $st => $array) {
+				echo "<tr>
+						<td>" .$array["NUM_ALMACEN"] ."</td>
+						<td>" .$array["CANTIDAD"] ."</td>
+					</tr>";
+			}
+
+			echo "</table>";
+}
+
 ?>
