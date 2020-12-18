@@ -8,8 +8,8 @@
 | Apartado 4  (Alta de Clientes)         | Dani             | [DONE]         |
 | Apartado 5  (Alta de Almacenes)        | Raquel           | [DONE]         |
 | Apartado 6  (Aprovisionar Productos)   | Marco            | [PENDING]      |
-| Apartado 7  (Compra Productos)         | Dani             | [PENDING]      |
-| Apartado 8  (Consulta de Stock)        | Raquel           | [PENDING]      |
+| Apartado 7  (Compra Productos)         | Raquel           | [PENDING]      |
+| Apartado 8  (Consulta de Stock)        | Raquel           | [DONE]         |
 | Apartado 9  (Consulta de Almacenes)    | Edu              | [PENDING]      |
 | Apartado 10 (Consulta de Compras)      | (???)            | [NOT ASSIGNED] |
 | Apartado 11 (Registro de Clientes)     | (???)            | [NOT ASSIGNED] |
