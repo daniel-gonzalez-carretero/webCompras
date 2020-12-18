@@ -36,7 +36,7 @@ try {
     </div>
 	
 <?php
-    } elseif (isset($_FILES['fichero']) && $_FILES['fichero']['error'] === UPLOAD_ERR_OK) {
+    } else if (isset($_FILES['fichero']) && $_FILES['fichero']['error'] === UPLOAD_ERR_OK) {
         $fileTmpPath = $_FILES['fichero']['tmp_name'];
         $fileName = $_FILES['fichero']['name'];
         if (!file_exists('./subidas/')) {
