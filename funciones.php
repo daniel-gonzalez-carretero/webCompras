@@ -59,7 +59,7 @@ function insertarProducto($conn, $id_prod, $nombre, $precio, $id_cat){
 
 /* 	- Función: "obtenerCodProd". 
 	- Parámetros: $conn.
-	- Funcionalidad: Determinar un código automático en función del código del último departamento registrado.
+	- Funcionalidad: Determinar un código automático en función del código del último almacén registrado.
 	- Valor de retorno: $codigo.*/
 function obtenerCodAlmacen($conn){
 	$sql="SELECT max(NUM_ALMACEN) as maximo FROM almacen";
