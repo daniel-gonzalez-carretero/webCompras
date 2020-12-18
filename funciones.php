@@ -150,10 +150,10 @@ function insertarAlmacen($conn, $num_almacen, $localidad){
 
         foreach ($fichero as $index=>$lineas) {
             $producto= explode('#', $lineas);
-            $id_prod=$producto[0];
-            $nombre=$producto[1];
-            $precio=$producto[2];
-            $id_cat=$producto[3];
+            $id_prod=obtenerCodProd($conexion);
+            $nombre=$producto[0];
+            $precio=$producto[1];
+            $id_cat=$producto[2];
             insertarProducto($conexion, $id_prod, $nombre, $precio, $id_cat);
         }
     }
