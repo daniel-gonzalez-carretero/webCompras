@@ -140,4 +140,22 @@ function insertarAlmacen($conn, $num_almacen, $localidad){
         }
     }
 
+ /* 	- Función: "prodFichSubida". 
+	- Parámetros: $conexion,$fichero.
+	- Funcionalidad: Dar alta productos de manera masiva.
+	- Valor de retorno: none
+	- Dev:Edu Gutierrez*/
+
+    function prodFichSubida($conexion,$fichero){
+
+        foreach ($fichero as $index=>$lineas) {
+            $producto= explode('#', $lineas);
+            $id_prod=$producto[0];
+            $nombre=$producto[1];
+            $precio=$producto[2];
+            $id_cat=$producto[3];
+            insertarProducto($conexion, $id_prod, $nombre, $precio, $id_cat);
+        }
+    }
+
 ?>
