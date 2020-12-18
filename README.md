@@ -4,7 +4,7 @@
 |----------------------------------------|------------------|----------------|
 | Apartado 1  (Alta Categorías)          | Marco            | [PENDING]      |
 | Apartado 2  (Alta de Productos)        | Raquel           | [DONE]         |
-| Apartado 3  (Alta Masiva de Productos) | Edu              | [PENDING]      |
+| Apartado 3  (Alta Masiva de Productos) | Edu              | [DONE]      |
 | Apartado 4  (Alta de Clientes)         | Dani             | [DONE]         |
 | Apartado 5  (Alta de Almacenes)        | Raquel           | [DONE]         |
 | Apartado 6  (Aprovisionar Productos)   | (???)            | [NOT ASSIGNED] |
