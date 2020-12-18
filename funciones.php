@@ -1,7 +1,7 @@
 <?php
 /* 	- Función: "obtenerCodProd". 
 	- Parámetros: $conn.
-	- Funcionalidad: Determinar un código automático en función del código del último departamento registrado.
+	- Funcionalidad: Determinar un código automático en función del código del último producto registrado.
 	- Valor de retorno: $codigo.*/
 function obtenerCodProd($conn){
 	$sql="SELECT max(substr(ID_PRODUCTO, 2)) as maximo FROM producto";
