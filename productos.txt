@@ -1,0 +1,4 @@
+P005#Camiseta#14.6#C003
+P006#Pantalon#14.8#C003
+P007#Camisa#14.1#C003
+P008#Bragas#14.6#C003
