@@ -2,7 +2,8 @@
 /* 	- Función: "obtenerCodProd". 
 	- Parámetros: $conn.
 	- Funcionalidad: Determinar un código automático en función del código del último producto registrado.
-	- Valor de retorno: $codigo.*/
+	- Valor de retorno: $codigo.
+	- Dev: Raquel Alcázar*/
 function obtenerCodProd($conn){
 	$sql="SELECT max(substr(ID_PRODUCTO, 2)) as maximo FROM producto";
 
@@ -19,25 +20,11 @@ function obtenerCodProd($conn){
 	return $codigo;
 }
 
-/* 	- Función: "obtenerCategorias". 
-	- Parámetros: $conn.
-	- Funcionalidad: Obtener todas las categorías.
-	- Valor de retorno: Array asociativo $categorias.*/
-function obtenerCategorias($conn){
-	$sql="SELECT * FROM categoria";
-
-	$stmt=$conn->prepare($sql);
-
-	$stmt->execute();
-	$categorias = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-	return $categorias;
-}
-
 /* 	- Función: "insertarProducto". 
 	- Parámetros: $conn, $dni, $nombre, $apellidos, $fecha_nac, $salario.
 	- Funcionalidad: Insertar un nuevo producto en la tabla "producto".
-	- Valor de retorno: Ninguno.*/
+	- Valor de retorno: Ninguno.
+	- Dev: Raquel Alcázar*/
 function insertarProducto($conn, $id_prod, $nombre, $precio, $id_cat){
 	$conn->beginTransaction();
 
@@ -60,7 +47,8 @@ function insertarProducto($conn, $id_prod, $nombre, $precio, $id_cat){
 /* 	- Función: "obtenerCodProd". 
 	- Parámetros: $conn.
 	- Funcionalidad: Determinar un código automático en función del código del último almacén registrado.
-	- Valor de retorno: $codigo.*/
+	- Valor de retorno: $codigo.
+	- Dev: Raquel Alcázar*/
 function obtenerCodAlmacen($conn){
 	$sql="SELECT max(NUM_ALMACEN) as maximo FROM almacen";
 
@@ -78,7 +66,8 @@ function obtenerCodAlmacen($conn){
 /* 	- Función: "insertarAlmacen". 
 	- Parámetros: $conn, $dni, $nombre, $apellidos, $fecha_nac, $salario.
 	- Funcionalidad: Insertar un nuevo producto en la tabla "producto".
-	- Valor de retorno: Ninguno.*/
+	- Valor de retorno: Ninguno.
+	- Dev: Raquel Alcázar*/
 function insertarAlmacen($conn, $num_almacen, $localidad){
 	$conn->beginTransaction();
 
@@ -161,7 +150,8 @@ function insertarAlmacen($conn, $num_almacen, $localidad){
 /* 	- Función: "obtenerTodo". 
 	- Parámetros: $conn.
 	- Funcionalidad: Obtener todo de una tabla.
-	- Valor de retorno: Array asociativo $seleccion.*/
+	- Valor de retorno: Array asociativo $seleccion.
+	- Dev: Raquel Alcázar*/
 function obtenerTodo($conn, $tabla){
 	$sql="SELECT * FROM $tabla";
 
@@ -176,7 +166,8 @@ function obtenerTodo($conn, $tabla){
 /* 	- Función: "consultarStock". 
 	- Parámetros: $conn.
 	- Funcionalidad: Obtener el stock de un producto por cada almacén.
-	- Valor de retorno: Array asociativo $stock.*/
+	- Valor de retorno: Array asociativo $stock.
+	- Dev: Raquel Alcázar*/
 function consultarStock($conn, $id_producto){
 	$sql="SELECT *, NOMBRE FROM almacena, producto WHERE almacena.ID_PRODUCTO = producto.ID_PRODUCTO and almacena.ID_PRODUCTO='$id_producto'";
 
@@ -191,7 +182,8 @@ function consultarStock($conn, $id_producto){
 /* 	- Función: "verStock". 
 	- Parámetros: $conn.
 	- Funcionalidad: Visualizar el stock de un producto por cada almacén.
-	- Valor de retorno: Ninguno.*/
+	- Valor de retorno: Ninguno.
+	- Dev: Raquel Alcázar*/
 function verStock($stock){
 	echo "<h1>Stock</h1>
 					<table border='1'>
@@ -209,6 +201,74 @@ function verStock($stock){
 			}
 
 			echo "</table>";
+}
+
+/* 	- Función: "validarCompraProd". 
+	- Parámetros: $conn, $id_producto, $cantidad, $stock.
+	- Funcionalidad: Validar la compra de un producto en función del stock.
+	- Valor de retorno: Ninguno.
+	- Dev: Raquel Alcázar*/
+function validarCompraProd($conn, $id_producto, $cantidad, $stock){
+
+	if($stock==null){
+
+		echo "El producto no está disponible.";
+
+	}else{
+
+		$sql="SELECT sum(cantidad) as total FROM ALMACENA WHERE ID_PRODUCTO='$id_producto'";
+
+		$stmt=$conn->prepare($sql);
+		$stmt->execute();
+
+		$total = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		if($total["total"]>=$cantidad){
+
+			$conn->beginTransaction();
+
+			foreach ($stock as $st => $array) {
+				
+				if($array["CANTIDAD"] >= $cantidad){
+
+					$retirar = $cantidad;
+
+				}else{
+
+					$retirar = $array["CANTIDAD"];
+				}
+
+				$num_almacen = $array["NUM_ALMACEN"];
+
+				if($array["CANTIDAD"]>$cantidad){
+					$stmt=$conn->prepare("UPDATE almacena SET CANTIDAD = CANTIDAD - '$retirar' WHERE NUM_ALMACEN = '$num_almacen' and ID_PRODUCTO = '$id_producto'");
+				}else{
+					$stmt=$conn->prepare("DELETE FROM almacena WHERE NUM_ALMACEN = '$num_almacen' and ID_PRODUCTO = '$id_producto'");
+				}
+
+				$stmt->execute();
+
+				$cantidad-=$retirar;
+
+				if($cantidad==0){
+					break;
+				}
+
+			}
+
+			
+			if(!$conn->commit()){
+				echo "<p>Error: No se ha podido realizar la compra.</p>";
+			}else{
+				echo "<p>Gracias por su compra.</p>";
+			}
+
+		}else{
+			echo "<p>No hay suficiente stock.</p>";
+		}
+	
+	}
+				
 }
 
 ?>
