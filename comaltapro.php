@@ -24,7 +24,7 @@
 						<option selected='true' disabled>-</option>
 						<?php
 							foreach ($categorias as $categoria => $array) {
-								echo "<option value='" .$array["ID_CATEGORIA"] ."'>" .$array["NOMBRE"] ."</option>";
+								echo "<option value='" .$array["ID_CATEGORIA"] ."'>" .$array["ID_CATEGORIA"] ."</option>";
 						}
 						?>
 						</select><br><br>
