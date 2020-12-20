@@ -270,5 +270,40 @@ function validarCompraProd($conn, $id_producto, $cantidad, $stock){
 	}
 				
 }
+/* 	- Función: "obtenerAlmacenes". 
+	- Parámetros: $conexion.
+	- Funcionalidad: Obtener todos los almacenes.
+	- Valor de retorno: Array asociativo $almacenes.
+	- Dev:Edu Gutierrez
+	*/
+
+function obtenerAlmacenes($conexion){
+
+		$sql="SELECT * FROM almacen";
+		$stmt=$conexion->prepare($sql);
+		$stmt->execute();
+		$almacenes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		return $almacenes;
+
+	}
+	/* 	
+	- Función: "obtenerProdAlmacenes". 
+	- Parámetros: $conexion, $num_almacen.
+	- Funcionalidad: Obtener los datos de productos de un almacén.
+	- Valor de retorno: none.
+	- Dev:Edu Gutierrez
+	*/
+
+function obtenerProdAlmacenes($conexion, $num_almacen){
+
+	$sql="SELECT * FROM almacena LEFT JOIN producto on almacena.ID_PRODUCTO=producto.ID_PRODUCTO WHERE NUM_ALMACEN='$num_almacen'";
+	$stmt=$conexion->prepare($sql);
+	$stmt->execute();
+	$id_productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+	foreach($id_productos as $producto){
+			echo "ID:<strong> ".$producto['ID_PRODUCTO']."</strong> NOMBRE:<strong>  ".$producto['NOMBRE']."</strong> PRECIO:<strong>  ".$producto['PRECIO']."</strong> <br>";
+		}
+	}
 
 ?>
