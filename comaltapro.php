@@ -14,7 +14,7 @@
 
 		if(!isset($_POST) || empty($_POST)){
 			
-			$categorias = obtenerCategorias($conexion);
+			$categorias = obtenerTodo($conexion, "categoria");
 ?>
 	<h1>Alta de productos</h1>
 	<form name='altaProd' method='post'action='<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>'>
