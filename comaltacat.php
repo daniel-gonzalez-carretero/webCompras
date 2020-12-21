@@ -8,17 +8,19 @@
         <form name='formulario' action='' method='post'>
             <label for="categoria">Categoria</label>
             <input type="text" name="categoria" /> <br />
+            <label for="descripcion">Descripcion</label>
+            <input type="text" name="descripcion" /> <br />
             <?php
-                include_once("conexion.php");
-                include_once("funciones.php");
+                include_once("php/conexion.php");
+                include_once("php/funciones.php");
                 if (!isset($_POST) || empty($_POST)) {
             ?>
             <?php
                 }
                 else {
                     $categoria=$_POST["categoria"];
-                    $codigo=gen_cod_cat($conexion);
-                    altacat($conexion,$categoria,$codigo);
+                    $descripcion=$_POST["descripcion"];
+                    altacat($conexion,$categoria,$descripcion);
                 }
             ?>
             <input type="submit" name="enviar" id="enviar" value="Enviar">
