@@ -11,7 +11,8 @@
 | Apartado 7  (Compra Productos)         | Raquel           | [DONE]         |
 | Apartado 8  (Consulta de Stock)        | Raquel           | [DONE]         |
 | Apartado 9  (Consulta de Almacenes)    | Edu              | [DONE]         |
-| Apartado 10 (Consulta de Compras)      | (???)            | [NOT ASSIGNED] |
+| Apartado 10 (Consulta de Compras)      | Raquel           | [PENDING]      |
+|                                        |                  |                |
 | Apartado 11 (Registro de Clientes)     | (???)            | [NOT ASSIGNED] |
 | Apartado 12 (Formulario LogIn)         | (???)            | [NOT ASSIGNED] |
 | Apartado 13 (Carrito de la Compra)     | (???)            | [NOT ASSIGNED] |
