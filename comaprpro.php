@@ -10,8 +10,8 @@
             <label for="almacen">Almacen</label>
             <select name="almacen">
                 <?php
-                    include_once("php/conexion.php");
-                    include_once("php/funciones.php");
+                    include_once("conexion.php");
+                    include_once("funciones.php");
 
                     try {
                         $almacenes=get_almacenes($conexion);
