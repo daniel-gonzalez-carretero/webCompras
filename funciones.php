@@ -280,4 +280,60 @@ function obtenerProdAlmacenes($conexion, $num_almacen){
 		}
 	}
 
+/* 	- Función: "consultarCompras". 
+	- Parámetros: $conn, $nif, $fecha_desde, $fecha_hasta.
+	- Funcionalidad: Obtener las compras realizadas por un cliente en un periodo de tiempo.
+	- Valor de retorno: Array asociativo $comprasCliente.*/
+function consultarCompras($conn, $nif, $fecha_desde, $fecha_hasta){
+	$sql="SELECT compra.ID_PRODUCTO, producto.NOMBRE, compra.UNIDADES, (producto.PRECIO * compra.UNIDADES) as precioCompra FROM compra, producto WHERE compra.ID_PRODUCTO = producto.ID_PRODUCTO and (FECHA_COMPRA >= '$fecha_desde' and FECHA_COMPRA <= '$fecha_hasta') and NIF = '$nif'";
+
+	$stmt=$conn->prepare($sql);
+	$stmt->execute();
+
+	$comprasCliente = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+	return $comprasCliente;
+}
+
+/* 	- Función: "verCompras". 
+	- Parámetros: $conn.
+	- Funcionalidad: Visualizar las compras.
+	- Valor de retorno: Ninguno.
+	- Dev: Raquel Alcázar*/
+function verCompras($compras){
+
+	$sum = 0;
+
+	if($compras!=null){
+		echo "<h1>Compras realizadas</h1>
+						<table border='1'>
+							<tr>
+								<th>Producto</th>
+								<th>Nombre producto</th>
+								<th>Unidades</th>
+								<th>Precio de compra</th>
+							</tr>";
+
+				foreach ($compras as $compra => $datos) {
+					echo "<tr>
+							<td>" .$datos["ID_PRODUCTO"] ."</td>
+							<td>" .$datos["NOMBRE"] ."</td>
+							<td>" .$datos["UNIDADES"] ."</td>
+							<td>" .$datos["precioCompra"] ."</td>
+						</tr>";
+
+						$sum += $datos["precioCompra"];
+				}
+
+				echo "<tr>
+						<th colspan=3>Total</th>
+						<td>" .$sum ."</td>
+					</tr>";
+
+				echo "</table>";
+	}else{
+		echo "<p>No hay registros de compras.</p>";
+	}
+}
+
 ?>
