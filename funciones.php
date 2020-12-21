@@ -336,4 +336,62 @@ function verCompras($compras){
 	}
 }
 
+    function get_almacenes($conn){
+	    /* 	- Función: "get_almacenes". 
+	- Parámetros: $conn.
+	- Funcionalidad: obtener almacenes.
+	- Valor de retorno: array de almacenes.
+	- Dev: Marco Santiago*/
+        try{
+            $almacenes = $conn->query("SELECT * from almacen")->fetchAll(PDO::FETCH_ASSOC);
+            echo "Gen almacenes succesfully<br>";
+            
+            return $almacenes;
+        }
+        catch(Exception $e) {
+            echo("Error obtener almacenes -->".$e->getMessage()."</br>");
+        }
+    }
+    function get_producto($conn){
+/* 	- Función: "get_producto". 
+	- Parámetros: $conn.
+	- Funcionalidad: obtener productos.
+	- Valor de retorno: Array productos.
+	- Dev: Marco Santiago*/
+        try{
+            $almacenes = $conn->query("SELECT * from producto")->fetchAll(PDO::FETCH_ASSOC);
+            echo "Gen almacenes succesfully<br>";
+            
+            return $almacenes;
+        }
+        catch(Exception $e) {
+            echo("Error obtener productos -->".$e->getMessage()."</br>");
+        }
+    }
+    function update_producto($conn){
+/* 	- Función: "update_producto". 
+	- Parámetros: $conn.
+	- Funcionalidad: actualizar productos.
+	- Valor de retorno: nada.
+	- Dev: Marco Santiago*/
+        try{
+            $almacen=$_POST["almacen"];
+            $producto=$_POST["producto"];
+            $cantidad=$_POST["cantidad"];
+            $almacen=explode("-",$almacen);
+            $almacen=$almacen[0];
+            $stmt = $conn->prepare("insert into almacena (NUM_ALMACEN,ID_PRODUCTO,CANTIDAD)values('$almacen','$producto','$cantidad')");
+                $stmt->bindParam(':almacen', $almacen);
+                $stmt->bindParam(':producto', $producto);
+                $stmt->bindParam(':cantidad', $cantidad);
+            $stmt->execute();
+
+            echo("Insert succesfully");
+        }
+        catch(PDOException $e) {
+            echo("Error update producto: -->".$e->getMessage()."</br>");
+        }
+    }
+?>
+
 ?>
