@@ -1,46 +1,54 @@
+<!--
+    Código por:         Edu Gutierrez
+    Refactorizado por:  Daniel González Carretero
+-->
+<!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="author" content="Edu Gutierrez">
-		<title>Web Compras</title>
-	</head>
-		<body>
-<?php
+<head>
+    <title>Consultar el Stock de un Almacén</title>
+    <meta charset="utf-8" />
+    <meta name="author" value="Edu Gutierrez" />
+</head>
+<body>
 
-	include_once("funciones.php");
-	include_once("conexion.php");
-
-	try{
-
-		if(!isset($_POST) || empty($_POST)){
-			
-			$almacenes = obtenerAlmacenes($conexion);
-?>
 	<h1>Consulta Productos Almacenes</h1>
-	<form name='consultaProd' method='post' action='<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>'>
-		Almacenes: <select name='almacen'>
-						<option selected='true' disabled>-</option>
-						<?php
-							foreach ($almacenes as $almacen => $array) {
-                                echo "<option value='" .$array["NUM_ALMACEN"] ."'>" .$array["LOCALIDAD"] ."</option>";
-						}
-						?>
-						</select><br><br>
+	<p><a href="index.html">Volver al Menú</a></p><br><br>
+
+	<?php
+
+		include_once("funciones.php");
+		$almacenes = obtenerAlmacenes();
+	
+	?>
+
+	<form method='post' action='<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>'>
+		<label for="almacen">Almacén: </label>
+        <select name="almacen" required>
+            <option disabled selected>Selecciona un Almacén</option>
+            <?php
+                foreach($almacenes as $almacen) {
+                    echo "<option value='". $almacen["NUM_ALMACEN"] ."'>[". $almacen["NUM_ALMACEN"] ."]: ". $almacen["LOCALIDAD"] ."</option>";
+                }
+            ?>
+        </select><br />
 
 		<input type='submit' value='Consultar productos' name='consultar'>
 	</form>
-<?php		
-		}else {
-            $num_almacen = $_REQUEST["almacen"];
-			obtenerProdAlmacenes($conexion,$num_almacen);			
+
+	<?php	
+
+		if(isset($_POST) && !empty($_POST)){
+            $num_almacen = $_POST["almacen"];
+            // La propia función gestiona los posibles errores
+			obtenerProductosAlmacenes($num_almacen);			
 		}
-
-	}catch(PDOException $e){
-
-		echo "<p>Error: " . $e->getMessage() ."</p>";
-	}
 			
-?>
+	?>
 			
-	</body>
+</body>
+<!-- Cambios de Refactorización Realizados -->
+<!-- 
+    # Actualizado el nombre de la función (obtenerProdAlmacenes -> obtenerProdAlmacenes), y sus parámetros
+    # Invertida la condición del IF, para evitar el ELSE innecesario
+-->
 </html>

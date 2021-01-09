@@ -1,54 +1,59 @@
+<!--
+    Código por:         Raquel Alcázar
+    Refactorizado por:  Daniel González Carretero
+-->
+<!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="author" content="Raquel Alcázar">
-		<title>Web Compras</title>
-	</head>
-		<body>
-<?php
+<head>
+    <title>Consultar el Stock de un Producto</title>
+    <meta charset="utf-8" />
+    <meta name="author" value="Raquel Alcázar" />
+</head>
+<body>
 
-	include_once("funciones.php");
-	include_once("conexion.php");
+	<h1>Consulta el Stock de un Producto</h1>
+	<p><a href="index.html">Volver al Menú</a></p><br><br>
+	
+	<?php 
+        include_once("funciones.php");
+        $productos = obtenerProductos();
+    ?>
 
-	try{
-
-		if(!isset($_POST) || empty($_POST)){
-
-			$productos = obtenerTodo($conexion, "producto");
-		
-?>
-	<h1>Consulta de Stock</h1>
-	<form name='consulStock' method='post'action='<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>'>
-		<label for="productos">Productos:</label>
-		<select name='productos'>
-						<option selected='true' disabled>-</option>
-						<?php
-							foreach ($productos as $producto => $array) {
-								echo "<option value='" .$array["ID_PRODUCTO"] ."'>" .$array["NOMBRE"] ."</option>";
-						}
-						?>
-						</select><br><br>
+	<form method='post' action='<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>'>
+		<label for="producto">Producto: </label>
+        <select name="producto" required>
+            <option disabled selected>Selecciona un Producto</option>
+            <?php
+                foreach($productos as $producto) {
+                    echo "<option value='". $producto["ID_PRODUCTO"] ."'>[". $producto["ID_PRODUCTO"] ."]: ". $producto["NOMBRE"] ."</option>";
+                }
+            ?>
+        </select><br />
 
 		<input type='submit' value='Ver stock' name='stock'>
 	</form>
 	
-<?php		
-		}else{
+	<?php		
+		if (isset($_POST) && !empty($_POST)) {
 
-			$id_producto = $_REQUEST["productos"];
-			
-			$stock = consultarStock($conexion, $id_producto);	
+			$id_producto = $_POST["producto"];
+			$stock = consultarStock($id_producto);	
 
-			verStock($stock);
-	
+			if ($stock == null) {
+				echo "<p>Parece que ninguno de nuestros almacenes tiene este producto en Stock...</p>";
+			} else {
+				verStock($stock);
+			}
+
 		}
-
-	}catch(PDOException $e){
-
-		echo "<p>Error: " . $e->getMessage() ."</p>";
-	}
+				
+	?>
 			
-?>
-			
-	</body>
+</body>
+<!-- Cambios de Refactorización Realizados -->
+<!-- 
+    # Invertida la condición del IF, para evitar el ELSE innecesario
+    # Añadido mensaje informativo, y se comprueba que el stock no sea NULL
+    # Se elimina el TRY-CATCH, los errores los tratan las propias funciones
+-->
 </html>

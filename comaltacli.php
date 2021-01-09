@@ -1,86 +1,103 @@
+<!--
+    Código por:         Daniel González Carretero 
+    Refactorizado por:  Daniel González Carretero
+-->
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Dar de Alta un Cliente</title>
-	<meta charset="utf-8" />
-	<!-- Daniel González Carretero -->
+    <title>Dar de Alta un Cliente</title>
+    <meta charset="utf-8" />
+    <meta name="author" value="Daniel González Carretero" />
 </head>
 <body>
+	<h1>Dar de Alta a un Cliente</h1>
+	<p><a href="index.html">Volver al Menú</a></p><br><br>
+	
+	<form method="post" action="<?php echo htmlentities($_SERVER["PHP_SELF"]);?>">
+		<label for="nif">NIF:</label>
+		<input type="text" name="nif" required><br>
 
-<?php 
-	include 'conexion.php';
-	if (!isset($_REQUEST) || empty($_REQUEST)) {
-?>
-<form method="get" action="#">
-	<label>NIF:</label>
-	<input type="text" name="nif" required><br>
-	<label>Nombre:</label>
-	<input type="text" name="nombre" required><br>
-	<label>Apellido/s: </label>
-	<input type="text" name="apellido"><br>
-	<label>Código Postal</label>
-	<input type="text" name="cp"><br>
-	<label>Dirección:</label>
-	<input type="text" name="direc"><br>
-	<label>Ciudad</label>
-	<input type="text" name="ciudad"><br>
-	<input type="submit" name="submit" value="Dar de Alta">
-</form>
-<?php 
-} else {
-	try {
-		$nif = $_REQUEST['nif'];
-		$nombre = $_REQUEST['nombre'];
-		$apellido = $_REQUEST['apellido'];
-		$cp = $_REQUEST['cp'];
-		$direc = $_REQUEST['direc'];
-		$ciudad = $_REQUEST['ciudad'];
+		<label for="nombre">Nombre:</label>
+		<input type="text" name="nombre" required><br>
 
+		<label for="apellido">Apellido/s: </label>
+		<input type="text" name="apellido" required><br>
 
-		$puedeEjecutar = true; // ¿Puede ejecutarse el insertado de datos?
+		<label for="cp">Código Postal</label>
+		<input type="text" name="cp" required><br>
 
-		// NIF no está vacío, y tiene 8 dígitos y una letra
-		$puedeEjecutar = isset($nif) && (preg_match('/^(\d{8}[A-Z])$/i', $nif) == 1); // preg_match() es el RegExp de PHP
+		<label for="direc">Dirección:</label>
+		<input type="text" name="direc" required><br>
 
-		// Se comprueba que NIF no está repetido
-		$consulta = $conexion->prepare("SELECT * FROM cliente WHERE nif = :nif");
-		$consulta->bindParam(":nif", $nif);
-		$consulta->execute();
+		<label for="ciudad">Ciudad</label>
+		<input type="text" name="ciudad" required><br>
 
-		$consulta->setFetchMode(PDO::FETCH_ASSOC); 
-		$clientesMismoNif = $consulta->fetchAll();
+		<input type="submit" name="submit" value="Dar de Alta">
+	</form>
+	<?php 
 
-		$puedeEjecutar = $puedeEjecutar && !(count($clientesMismoNif) > 0);
+		include_once("funciones.php");
+		if (isset($_POST) && !empty($_POST)) {
 
-		if ($puedeEjecutar) {
+			$nif = $_POST['nif'];
+			$nombre = $_POST['nombre'];
+			$apellido = $_POST['apellido'];
+			$cp = $_POST['cp'];
+			$direc = $_POST['direc'];
+			$ciudad = $_POST['ciudad'];
+
+			$puedeEjecutar = true; // ¿Puede ejecutarse el insertado de datos?
+
+			// NIF no está vacío, y tiene 8 dígitos y una letra
+			$puedeEjecutar = isset($nif) && (preg_match('/^(\d{8}[A-Z])$/i', $nif) == 1); // preg_match() es el RegExp de PHP
+
+			// Se comprueba que NIF no está repetido
+			$clientesMismoNif = obtenerClienteNIF($nif);
+			$puedeEjecutar = $puedeEjecutar && $clientesMismoNif == null;
+
+			if ($puedeEjecutar) {
 			// Se ejecuta la inserción de los datos
+				if ( insertarCliente($nif, $nombre, $apellido, $cp, $direc, $ciudad) ) {
+					echo "<p>Se ha dado de alta al cliente correctamente.</p>";
+				} // Si la función devuelve FALSE, es la propia función quien genera el mensaje de error
 
-			$insertCliente = $conexion->prepare("INSERT INTO cliente (nif, nombre, apellido, cp, direccion, ciudad) VALUES (:nif, :nombre, :apellido, :cp, :direccion, :ciudad)");
-			$insertCliente->bindParam(":nif", $nif);
-			$insertCliente->bindParam(":nombre", $nombre);
-			$insertCliente->bindParam(":apellido", $apellido);
-			$insertCliente->bindParam(":cp", $cp);
-			$insertCliente->bindParam(":direccion", $direc);
-			$insertCliente->bindParam(":ciudad", $ciudad);
+			} else {
+				// Hay algún error
+				echo "<p><strong>Parece que hay un error con el NIF introducido.</strong> Prueba lo siguiente:</p><ul><li>Comprueba que no lo hayas dejado en blanco</li><li>Comprueba que tiene exactamente 8 dígitos, y una letra al final</li><li>Asegurate que no has dado de alta a un mismo cliente con ese NIF</li></ul>";
+				
+				echo "<p><strong>Estos son los datos introducidos antes:</strong></p>
+					  <blockquote>
+						  <strong>NIF: </strong>". $nif . "</br>
+						  <strong>Nombre: </strong>". $nombre . "</br>
+						  <strong>Apellido/s: </strong>". $apellido . "</br>
+						  <strong>Código Postal: </strong>". $cp . "</br>
+						  <strong>Dirección: </strong>". $direc . "</br>
+						  <strong>Ciudad: </strong>". $ciudad . "</br>
+					  </blockquote>";
+			}
 
-			$insertCliente->execute();
-
-			echo "<h1>¡Genial!</h1><p>Parece que todo ha funcionado a la perfección</p>";
-
-
-		} else {
-			// Hay algún error
-			echo "<h1>¡Vaya! Parece que hay un error con el NIF introducido</h1><p>Prueba lo siguiente:</p><ul><li>Comprueba que has introducido un NIF</li><li>Comprueba que tiene exactamente 8 dígitos, y una letra al final</li><li>Asegurate que no has dado de alta a un mismo cliente con ese NIF</li></ul>";
 		}
 
-
-
-	} catch(PDOException $ex) {
-		echo "<h1 style='color: red'>Problemas: ". $ex->getMessage() . "</h1>";
-	}
-}
-
-?>
+	?>
 
 </body>
+
+<!-- Cambios de Refactorización Realizados -->
+<!-- 
+    # Se traspasa los bloques de código a funciones (obtenerClienteNIF, y insertarCliente)
+    # Se cambia el atributo 'action', de la etiqueta <form>, para que sea igual que en el resto de archivos
+    # Se usa como 'method' POST, en vez de GET
+    # Editados los mensajes informativos
+    # Se elimina el TRY-CATCH, las funciones tratan los errores
+-->
 </html>
+
+<!-- Cambios 
+
+	se usan las nuevas funciones
+	se añade al formulario el atributo action, de la misma forma que en el resto de archivos
+	se usa, como method, POST en vez de GET
+	modificados los mensajes informativos
+	se elimina el TRY-CATCH ya que ya no es necesario
+
+-->

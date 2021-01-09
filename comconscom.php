@@ -1,62 +1,60 @@
+<!---->
+<!--
+    Código por:         Raquel Alcázar
+    Refactorizado por:  Daniel González Carretero
+-->
+<!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="author" content="Raquel Alcázar">
-		<title>Web Compras</title>
-	</head>
-		<body>
-<?php
+<head>
+    <title>Ver Historia de Compras</title>
+    <meta charset="utf-8" />
+    <meta name="author" value="Raquel Alcázar" />
+</head>
+<body>
 
-	include_once("funciones.php");
-	include_once("conexion.php");
+	<h1>Ver el Historial de Compras</h1>
+	<p><a href="index.html">Volver al Menú</a></p><br><br>
+	
+	<?php 
+		include_once("funciones.php");
+		$clientes = obtenerClientes();
+	?>
 
-	try{
-
-		if(!isset($_POST) || empty($_POST)){
-
-			$clientes = obtenerTodo($conexion, "cliente");
-		
-?>
-	<h1>Consulta de compras</h1>
-	<form name='consCompras' method='post'action='<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>'>
-		<label for="nif">NIF</label>
-		<select name='nif'>
-			<option selected='true' disabled>-</option>
+	<form method='post' action='<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>'>
+		<label for="cliente">Cliente: </label>
+		<select name='cliente' required>
+			<option selected disabled>Selecciona un Cliente</option>
 			<?php
-				foreach ($clientes as $cliente => $datos) {
-					echo "<option value='" .$datos["NIF"] ."'>" .$datos["NIF"] ."</option>";
-				}
+				foreach($clientes as $cliente) {
+                    echo "<option value='". $cliente["NIF"] ."'>[". $cliente["NIF"] ."]: ". $cliente["NOMBRE"] ." ". $cliente["APELLIDO"] ."</option>";
+                }
 			?>
-		</select><br><br>
+		</select><br>
 
-		<label for="fecha_desde">Desde </label>
-		<input type='date' name='fecha_desde'><br><br>
+		<label for="fecha_desde">Desde... </label>
+		<input type='date' name='fecha_desde' required><br>
 
-		<label for="fecha_hasta">Hasta </label>
-		<input type='date' name='fecha_hasta'><br><br>
+		<label for="fecha_hasta">Hasta... </label>
+		<input type='date' name='fecha_hasta' required><br>
 
 		<input type='submit' value='Ver compras' name='alta'>
 	</form>
 	
 <?php		
-		}else{
-
-			$nif = $_REQUEST["nif"];
-			$fecha_desde = $_REQUEST["fecha_desde"];
-			$fecha_hasta = $_REQUEST["fecha_hasta"];
+		if (isset($_POST) && !empty($_POST)) {
+			$nif = $_POST["cliente"];
+			$fecha_desde = $_POST["fecha_desde"];
+			$fecha_hasta = $_POST["fecha_hasta"];
 			
-			$comprasCliente = consultarCompras($conexion, $nif, $fecha_desde, $fecha_hasta);		
-
-			verCompras($comprasCliente);	
-	
+			$comprasCliente = consultarCompras($nif, $fecha_desde, $fecha_hasta);		
+			verCompras($comprasCliente); // La función ya trata los posibles errores
 		}
-
-	}catch(PDOException $e){
-
-		echo "<p>Error: " . $e->getMessage() ."</p>";
-	}
-			
 ?>
 			
-	</body>
+</body>
+<!-- Cambios de Refactorización Realizados -->
+<!-- 
+    # Invertida la condición del IF, para evitar el ELSE innecesario
+    # Se elimina el TRY-CATCH, los errores los tratan las funciones
+-->
 </html>
