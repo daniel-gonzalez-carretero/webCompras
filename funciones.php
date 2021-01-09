@@ -1,397 +1,877 @@
 <?php
-/* 	- Función: "obtenerCodProd". 
-	- Parámetros: $conn.
-	- Funcionalidad: Determinar un código automático en función del código del último producto registrado.
-	- Valor de retorno: $codigo.
-	- Dev: Raquel Alcázar*/
-function obtenerCodProd($conn){
-	$sql="SELECT max(substr(ID_PRODUCTO, 2)) as maximo FROM producto";
 
-	$stmt=$conn->prepare($sql);
-	$stmt->execute();
+include_once 'conexion.php';
 
-	$maximo = $stmt->fetch(PDO::FETCH_ASSOC);
+function altaCategoria($nombre, $descripcion) {
+# Función 'altaCategoría'. 
+# Parámetros: 
+# 	- $nombre (nombre de la categoría, que será la Clave Primaria)
+#	- $descripcion (descripción de la categoría)
+#
+# Funcionalidad:
+# Inserta una nueva categoría en la tabla 'categoria'
+#
+# Retorna: TRUE / FALSE, en caso de que todo vaya bien o haya algún error
+#
+# Código por Marco Santiago
+# Refactorizado por Daniel González Carretero
 
-	$maximo=(int)$maximo["maximo"];
-	$codigo=$maximo+1;
+	global $conexion;
+    try {
+    	// Sentencia anterior:
+    	//  insert into categoria (ID_CATEGORIA,NOMBRE)values('$categoria','$codigo')
+    	$conexion->beginTransaction();
 
-	$codigo="P" .str_pad($codigo, 3, 0, STR_PAD_LEFT);
+		$insertarCategoria = $conexion->prepare("INSERT INTO categoria (ID_CATEGORIA, NOMBRE) VALUES (:nombre, :descripcion)");
+		$insertarCategoria->bindParam(':nombre', $nombre);
+		$insertarCategoria->bindParam(':descripcion', $descripcion);
+        $insertarCategoria->execute();
 
-	return $codigo;
-}
+        $conexion->commit();
+        return true;
 
-/* 	- Función: "insertarProducto". 
-	- Parámetros: $conn, $dni, $nombre, $apellidos, $fecha_nac, $salario.
-	- Funcionalidad: Insertar un nuevo producto en la tabla "producto".
-	- Valor de retorno: Ninguno.
-	- Dev: Raquel Alcázar*/
-function insertarProducto($conn, $id_prod, $nombre, $precio, $id_cat){
-	$conn->beginTransaction();
-
-	$stmt=$conn->prepare("INSERT INTO producto (ID_PRODUCTO, NOMBRE, PRECIO, ID_CATEGORIA) VALUES (:id_prod, :nombre, :precio, :id_cat)");
-
-    $stmt->bindParam(':id_prod', $id_prod);
-    $stmt->bindParam(':nombre', $nombre);
-    $stmt->bindParam(':precio', $precio);
-    $stmt->bindParam(':id_cat', $id_cat);
-
-	$stmt->execute();
-
-	if(!$conn->commit()){
-		echo "Error: No se ha podido dar de alta el producto.";
-	}else{
-		  echo "<p>Producto dado de alta correctamente.</p>";
-	}
-}
-
-/* 	- Función: "obtenerCodProd". 
-	- Parámetros: $conn.
-	- Funcionalidad: Determinar un código automático en función del código del último almacén registrado.
-	- Valor de retorno: $codigo.
-	- Dev: Raquel Alcázar*/
-function obtenerCodAlmacen($conn){
-	$sql="SELECT max(NUM_ALMACEN) as maximo FROM almacen";
-
-	$stmt=$conn->prepare($sql);
-	$stmt->execute();
-
-	$maximo = $stmt->fetch(PDO::FETCH_ASSOC);
-
-	$maximo=(int)$maximo["maximo"];
-	$codigo=$maximo+10;
-
-	return $codigo;
-}
-
-/* 	- Función: "insertarAlmacen". 
-	- Parámetros: $conn, $dni, $nombre, $apellidos, $fecha_nac, $salario.
-	- Funcionalidad: Insertar un nuevo producto en la tabla "producto".
-	- Valor de retorno: Ninguno.
-	- Dev: Raquel Alcázar*/
-function insertarAlmacen($conn, $num_almacen, $localidad){
-	$conn->beginTransaction();
-
-	$stmt=$conn->prepare("INSERT INTO almacen (NUM_ALMACEN, LOCALIDAD) VALUES (:num_almacen, :localidad)");
-
-    $stmt->bindParam(':num_almacen', $num_almacen);
-    $stmt->bindParam(':localidad', $localidad);
-
-	$stmt->execute();
-
-	if(!$conn->commit()){
-		echo "Error: No se ha podido dar de alta el almac&#233;n.";
-	}else{
-		  echo "<p>Almac&#233;n dado de alta correctamente.</p>";
-	}
-}
-    function altacat($conn,$categoria,$codigo){
-/* 	- Función: "altacat". 
-	- Parámetros: $conn,$categoria,$codigo.
-	- Funcionalidad: Insertar una nueva categoria en la tabla "categoria".
-	- Valor de retorno: Ninguno.
-	- Dev:Marco Santiago*/
-        try{
-            $stmt = $conn->prepare("insert into categoria (ID_CATEGORIA,NOMBRE)values('$categoria','$codigo')");
-                $stmt->bindParam(':codigo', $codigo);
-                $stmt->bindParam(':categoria', $categoria);
-            $stmt->execute();
-
-            echo("Insert succesfully");
-        }
-        catch(PDOException $e) {
-            $test= "Error insertar categoria: -->".$e->getMessage()."</br>";
-        }
+    } catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al dar de alta la categoría: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		$conexion->rollBack();
+		return false;
     }
 
- /* 	- Función: "prodFichSubida". 
-	- Parámetros: $conexion,$fichero.
-	- Funcionalidad: Dar alta productos de manera masiva.
-	- Valor de retorno: none
-	- Dev:Edu Gutierrez*/
 
-    function prodFichSubida($conexion,$fichero){
-
-        foreach ($fichero as $index=>$lineas) {
-            $producto= explode('#', $lineas);
-            $id_prod=obtenerCodProd($conexion);
-            $nombre=$producto[0];
-            $precio=$producto[1];
-            $id_cat=$producto[2];
-            insertarProducto($conexion, $id_prod, $nombre, $precio, $id_cat);
-        }
-    }
-
-/* 	- Función: "obtenerTodo". 
-	- Parámetros: $conn.
-	- Funcionalidad: Obtener todo de una tabla.
-	- Valor de retorno: Array asociativo $seleccion.
-	- Dev: Raquel Alcázar*/
-function obtenerTodo($conn, $tabla){
-	$sql="SELECT * FROM $tabla";
-
-	$stmt=$conn->prepare($sql);
-
-	$stmt->execute();
-	$seleccion = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-	return $seleccion;
+# Cambios de Refactorización Realizados:
+# 	- Actualizado el nombre de la función
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#   - Añadida la posibilidad de hacer Roll Back si algo falla, o Commit si todo funciona correctamente
+#   - Modificada la sentencia de INSERT, para mayor claridad (no hay cambios relevantes, únicamente estéticos)
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
 }
 
-/* 	- Función: "consultarStock". 
-	- Parámetros: $conn.
-	- Funcionalidad: Obtener el stock de un producto por cada almacén.
-	- Valor de retorno: Array asociativo $stock.
-	- Dev: Raquel Alcázar*/
-function consultarStock($conn, $id_producto){
-	$sql="SELECT *, NOMBRE FROM almacena, producto WHERE almacena.ID_PRODUCTO = producto.ID_PRODUCTO and almacena.ID_PRODUCTO='$id_producto'";
 
-	$stmt=$conn->prepare($sql);
-	$stmt->execute();
 
-	$stock = $stmt->fetchAll(PDO::FETCH_ASSOC);
+##
+# La función 'obtenerTodo($tabla)' se convierte en las siguientes funciones:
+# 	- obtenerCategorias()
+# 	- obtenerProductos()
+# 	- obtenerAlmacenes()
+# 	- obtenerClientes()
+##
+
+
+
+function obtenerCategorias() {
+# Función 'obtenerCategorias'. 
+# Parámetros: 
+# 	- (ninguno)
+#
+# Funcionalidad:
+# Obtiene todos los datos de la tabla 'categoria'
+#
+# Retorna: Información sobre la tabla 'categoria' / NULL si hay algún error
+#
+# Código por Raquel Alcázar
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	// Sentencia anterior:
+	// SELECT * FROM $tabla
+	try {
+		$obtenerInfo = $conexion->prepare("SELECT * FROM categoria");
+		$obtenerInfo->execute();
+		return $obtenerInfo->fetchAll(PDO::FETCH_ASSOC); # Si falla, devuelve NULL por defecto
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver los datos de las Categorías: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		return null;
+	}
+
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
+}
+
+
+
+function obtenerProductos() {
+# Función 'obtenerProductos'. 
+# Parámetros: 
+# 	- (ninguno)
+#
+# Funcionalidad:
+# Obtiene todos los datos de la tabla 'producto'
+#
+# Retorna: Información sobre la tabla 'producto' / NULL si hay algún error
+#
+# Código por Raquel Alcázar y Marco Santiago (ambos hicieron su versión de la misma función)
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	// Sentencia anterior:
+	// SELECT * FROM $tabla
+	try {
+		$obtenerInfo = $conexion->prepare("SELECT * FROM producto");
+		$obtenerInfo->execute();
+		return $obtenerInfo->fetchAll(PDO::FETCH_ASSOC); # Si falla, devuelve NULL por defecto
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver los datos de los Productos: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		return null;
+	}
 	
-	return $stock;
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
 }
 
-/* 	- Función: "verStock". 
-	- Parámetros: $conn.
-	- Funcionalidad: Visualizar el stock de un producto por cada almacén.
-	- Valor de retorno: Ninguno.
-	- Dev: Raquel Alcázar*/
+
+
+function obtenerCodigoProducto() {
+# Función 'obtenerCodigoProducto'. 
+# Parámetros: 
+# 	- (ninguno)
+#
+# Funcionalidad:
+# Determina y devuelve el siguiente código del siguiente producto añadido manualmente
+#
+# Retorna: Código a usar para el próximo producto / NULL si ha habido algún error
+#
+# Código por Raquel Alcázar
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	// Método anterior:
+	// $maximo => SELECT max(substr(ID_PRODUCTO, 2)) as maximo FROM producto
+	// $codigo => (int) $maximo + 1
+	// $codigo => "P" . str_pad($codigo, 3, 0, STR_PAD_LEFT)
+	try {
+		$nuevoCodigo = $conexion->prepare("SELECT CONCAT('P', LPAD(SUBSTR(MAX(id_producto), 2)+1, 4, '0')) AS 'codigo' FROM producto WHERE id_producto LIKE 'P%'");
+		$nuevoCodigo->execute();
+		$codigo = $nuevoCodigo->fetch(PDO::FETCH_ASSOC)["codigo"];
+
+		return $codigo == NULL ? "P0001" : $codigo; // Si no existe un producto con un ID que empiece por 'P' (es decir, la consulta devuelve NULL), devuelve el código 'P0001';
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver el Código del Producto: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		return null;
+	}
+	
+
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#   - Modificada la sentencia de SELECT, para mayor claridad y mejora de eficiencia (al sustituir sentencias PHP por la sentencia de SQL)
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
+# 	- Añadida la excepción para el cáso límite de la primera ejecución de la función sin haber productos previos (antes devolvía NULL, y por tanto, error)
+}
+
+
+
+function insertarProducto($id_prod, $nombre, $precio, $id_cat){
+# Función 'insertarProducto'. 
+# Parámetros: 
+# 	- $id_prod (id del producto a insertar)
+# 	- $nombre (nombre del producto a insertar)
+# 	- $precio (precio del producto a insertar)
+# 	- $id_cat (id de la categoría a la que pertenece el producto a insertar)
+#
+# Funcionalidad:
+# Inserta un nuevo producto en la tabla 'producto'
+#
+# Retorna: TRUE / FALSE según si se ha ejecutado correctamente o no
+#
+# Código por Raquel Alcázar
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	try {
+		$conexion->beginTransaction();
+
+		$insertarProducto = $conexion->prepare("INSERT INTO producto (ID_PRODUCTO, NOMBRE, PRECIO, ID_CATEGORIA) VALUES (:id_prod, :nombre, :precio, :id_cat)");
+		$insertarProducto->bindParam(':id_prod', $id_prod);
+		$insertarProducto->bindParam(':nombre', $nombre);
+		$insertarProducto->bindParam(':precio', $precio);
+		$insertarProducto->bindParam(':id_cat', $id_cat);
+		$insertarProducto->execute();
+
+		$conexion->commit();
+		return true;
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al intentar dar de alta al Producto: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		$conexion->rollBack();
+		return false;
+	}
+
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#   - Modificada la sentencia de SELECT, con un único propósito estético
+#	- Se añade un TRY-CATCH para que sea la propia función quien trata los errores
+# 	- Se añade la posibilidad de realizar un RollBack en caso de haber habido algún error
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
+}
+
+
+
+function obtenerCodigoAlmacen() {
+# Función 'obtenerCodigoAlmacen'. 
+# Parámetros: 
+# 	- (ninguno)
+#
+# Funcionalidad:
+# Determina el código del próximo almacen, según el último registrado
+#
+# Retorna: Código a usar para el próximo almacen, o NULL si hay algún error
+#
+# Código por Raquel Alcázar
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	try {
+
+		// Método anterior:
+		// $maximo => SELECT max(NUM_ALMACEN) as maximo FROM almacen
+		// $maximo => (int) $maximo + 10
+
+		$codigoAlmacen = $conexion->prepare("SELECT MAX(num_almacen) + 10 AS 'Maximo' FROM almacen");
+		$codigoAlmacen->execute();
+		$codigo = $codigoAlmacen->fetch(PDO::FETCH_ASSOC)["Maximo"];
+
+		return $codigo == NULL ? 10 : $codigo; // Si no hay otros almacenes previos (es decir, $codigo es NULL), devuelve 10. Si no, devuelve $codigo
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver el Código del Almacén: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		return NULL;
+	}
+
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#   - Modificada la sentencia de SELECT, para mayor claridad y mejora de eficiencia (al sustituir sentencias PHP por la sentencia de SQL)
+#	- Se añade un TRY-CATCH para que sea la propia función quien trata los errores
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
+}
+
+
+
+function insertarAlmacen($numAlmacen, $localidad) {
+# Función 'insertarAlmacen'. 
+# Parámetros: 
+# 	- $numAlmacen (número del almacen, que hace de Clave Primaria)
+# 	- $localidad (localidad donde está situado el almacen)
+#
+# Funcionalidad:
+# Inserta un nuevo almacén en la tabla 'almacen'
+#
+# Retorna: TRUE / FALSE según si se ha ejecutado correctamente o no
+#
+# Código por Raquel Alcázar
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	try {
+		$conexion->beginTransaction();
+
+		$insertarAlmacen = $conexion->prepare("INSERT INTO almacen (num_almacen, localidad) VALUES (:num_almacen, :localidad)");
+		$insertarAlmacen->bindParam(':num_almacen', $numAlmacen);
+  		$insertarAlmacen->bindParam(':localidad', $localidad);
+  		$insertarAlmacen->execute();
+
+  		$conexion->commit();
+  		return true;
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al intentar dar de alta al Almacén: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		$conexion->rollBack();
+		return false;
+	}
+
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#	- Se añade un TRY-CATCH para que sea la propia función quien trata los errores
+# 	- Se añade la posibilidad de realizar un RollBack en caso de haber habido algún error
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
+}
+
+function insertarProductosFichero($fichero) {
+# Función 'insertarProductosFichero'. 
+# Parámetros: 
+# 	- $fichero (fichero [tipo de datos File] donde está la información de los productos a insertar de forma masiva)
+#
+# Funcionalidad:
+# Inserta de forma masiva productos a la tabla 'producto'
+#
+# Retorna: STRING con el número de líneas ejecutadas, y el total de las líneas leidas
+#
+# Código por Edu Gutierrez
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	$numeroLineasTotales = 0;
+	$numeroLineasEjecutadas = 0;
+    foreach ($fichero as $lineas => $string) {
+        $producto = explode('#', trim($string));
+        //insertarProducto("S10_1678", "1969 Harley Davidson Ultimate Chopper", "48.81", "Motorcycles");
+
+        $id_prod = $producto[0];
+        $nombre = $producto[1];
+        $precio = $producto[2];
+        $id_cat = $producto[3];
+
+        $numeroLineasTotales++;
+
+        if ( $id_prod == NULL || !insertarProducto($id_prod, $nombre, $precio, $id_cat)) {
+        	echo "<p>Ha habido un error al insertar el producto <strong>'". $nombre ."</strong>. El producto NO se ha dado de alta, pero la ejecución del archivo ha continuado. Por favor, de de alta este producto manualmente <strong><a href='comaltapro.php'>aquí</a></strong>, o edite el fichero.</p>";
+        } else {
+        	$numeroLineasEjecutadas++;
+        }
+    }
+
+    return "Líneas ejecutadas: ". $numeroLineasEjecutadas ." / ". $numeroLineasTotales;
+
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#	- Se tratan manualmente los errores (comprobando los valores de retorno de las funciones usadas)
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
+}
+
+
+
+function consultarStock($id_producto){
+# Función 'consultarStock'. 
+# Parámetros: 
+# 	- $id_producto (ID del Producto del que se quiere consultar el Stock Disponible)
+#
+# Funcionalidad:
+# Inserta de forma masiva productos a la tabla 'producto'
+#
+# Retorna: La información de los almacenes que tienen ese producto en Stock / NULL si ocurre algún error, o no hay existencias
+#
+# Código por Raquel Alcázar
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	try {
+		// Consulta anterior:
+		// SELECT almacena.*, producto.NOMBRE FROM almacena, producto where almacena.id_producto = producto.id_producto and almacena.id_producto = :idProducto
+		$obtenerStock = $conexion->prepare("SELECT almacen.localidad AS 'localidadAlmacen', almacena.cantidad AS 'cantidadProducto', almacena.num_almacen AS 'numeroAlmacen' FROM almacena LEFT JOIN almacen ON almacen.num_almacen = almacena.num_almacen WHERE almacena.cantidad > 0 AND almacena.id_producto = :idProducto"); // cantidad > 0 para sólo mostrar almacenes con ese producto
+		$obtenerStock->bindParam(":idProducto", $id_producto);
+		$obtenerStock->execute();
+		return $obtenerStock->fetchAll(PDO::FETCH_ASSOC);
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver los datos del Stock del Producto: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		return null;
+	}
+
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#	- Se modifica la consulta, para devolver únicamente los valores usados, y los almacenes que tengan mínimo 1 unidad (para evitar posibles futuros problemas)
+#	- Se añade un TRY-CATCH para que sea la propia función quien trata los errores
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
+}
+
+
+
 function verStock($stock){
-	echo "<h1>Stock</h1>
-					<table border='1'>
-						<caption>" .$stock[0]["NOMBRE"] ." (" .$stock[0]["ID_PRODUCTO"] .")</caption>
-						<tr>
-							<th>Almacén</th>
-							<th>Cantidad</th>
-						</tr>";
+# Función 'consultarStock'. 
+# Parámetros: 
+# 	- $stock (Información del stock que se quiere mostrar por pantalla)
+#
+# Funcionalidad:
+# Inserta de forma masiva productos a la tabla 'producto'
+#
+# Retorna: (nada, los datos tratados se muestran por pantalla)
+#
+# Código por Raquel Alcázar
+# Refactorizado por Daniel González Carretero
 
-			foreach ($stock as $st => $array) {
-				echo "<tr>
-						<td>" .$array["NUM_ALMACEN"] ."</td>
-						<td>" .$array["CANTIDAD"] ."</td>
-					</tr>";
-			}
+	echo 	"<table border='1'>
+				<tr>
+					<th>Almacén</th>
+					<th>Cantidad</th>
+				</tr>";
 
-			echo "</table>";
+	foreach ($stock as $filas => $datos) {
+		echo 	"<tr>
+					<td>".  $datos["localidadAlmacen"] 	."</td>
+					<td>".  $datos["cantidadProducto"] 	."</td>
+			  	</tr>";
+	}
+
+	echo 	"</table>";
+
+# Cambios de Refactorización Realizados:
+# 	- Modificados los índices del array asociativo '$datos', para que se corresponda con los nuevos valores que debería tener el array '$stock'
+#	- Se re-ordenan los echo's para que exista una jerarquía HTML y sea más facil de leer (puramente estético)
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
 }
 
-/* 	- Función: "validarCompraProd". 
-	- Parámetros: $conn, $id_producto, $cantidad, $stock.
-	- Funcionalidad: Validar la compra de un producto en función del stock.
-	- Valor de retorno: Ninguno.
-	- Dev: Raquel Alcázar*/
-function validarCompraProd($conn, $id_producto, $cantidad, $stock){
 
-	if($stock==null){
 
-		echo "El producto no está disponible.";
+function realizarCompraProducto($nifCliente, $id_producto, $cantidadCompra){
+# Función 'realizarCompraProducto'. 
+# Parámetros: 
+# 	- $nifCliente (NIF del cliente que realiza la compra)
+#	- $id_producto (ID del producto que se quiere comprar)
+#	- $cantidadCompra (Número de unidades que se quiere comprar)
+#
+# Funcionalidad:
+# Intenta realizar la compra de un producto concreto
+#
+# Retorna: TRUE / FALSE, según si se ha podido o no realizar la compra (por cualquier motivo. Se justifica con un echo)
+#
+# Código por Raquel Alcázar
+# Refactorizado por Daniel González Carretero
 
-	}else{
+	global $conexion;
 
-		$sql="SELECT sum(cantidad) as total FROM ALMACENA WHERE ID_PRODUCTO='$id_producto'";
+	$stock = consultarStock($id_producto);
 
-		$stmt=$conn->prepare($sql);
-		$stmt->execute();
+	if ($stock == null) {
 
-		$total = $stmt->fetch(PDO::FETCH_ASSOC);
+		echo "<p>Lo sentimos, parece que ningún almacén dispone de este producto</p></br>";
 
-		if($total["total"]>=$cantidad){
+	} else {
 
-			$conn->beginTransaction();
+		$cantidadTotalProductos = $conexion->prepare("SELECT SUM(cantidad) AS 'total' FROM almacena WHERE id_producto = :idProducto");
+		$cantidadTotalProductos->bindParam(":idProducto", $id_producto);
+		$cantidadTotalProductos->execute();
 
-			foreach ($stock as $st => $array) {
-				
-				if($array["CANTIDAD"] >= $cantidad){
+		$totalProducto = $cantidadTotalProductos->fetch(PDO::FETCH_ASSOC)["total"];
 
-					$retirar = $cantidad;
+		$totalUnidadesComprar = $cantidadCompra; // Variable auxiliar, para no perder el valor de $cantidadCompra
+		if ($totalProducto >= $cantidadCompra) {
+			// Si hay suficientes productos, se realiza la compra
 
-				}else{
+			try {
+				$conexion->beginTransaction();
 
-					$retirar = $array["CANTIDAD"];
+				foreach ($stock as $almacen => $informacion) {
+					// Se consulta cada almacén que tenga ese producto en Stock
+					if ($informacion["cantidadProducto"] >= $cantidadCompra) {
+						$cantidadRetirar = $cantidadCompra; // Si un almacén tiene la cantidad de producto restante, se retira todo lo que quede por retirar del total comprado
+					} else {
+						$cantidadRetirar = $informacion["cantidadProducto"]; // Si la cantidad de producto de un almacén no es suficiente, se retiran todos los productos de ese almacén
+					}
+
+					# PENDIENTE DE CONFIRMAR POR EL CLIENTE / SISTEMAS [¿Si un almacén tiene 0 uds. de un producto, se debe borrar de la tabla 'almacena'?]
+					# if ($cantidadRetirar == $informacion["cantidadProducto"]) {
+					#	$borrarAlmacen = $conexion->prepare("DELETE FROM almacena WHERE num_almacen = :numAlmacen AND id_producto = :idProducto");
+					#	$borrarAlmacen->bindParam(":numAlmacen", $informacion["numeroAlmacen"]);
+					#	$borrarAlmacen->bindParam(":idProducto", $id_producto);
+					#	$borrarAlmacen->execute();
+					#} else {
+
+					$actualizarCantidad = $conexion->prepare("UPDATE almacena SET cantidad = cantidad - :cantidadRetirar WHERE num_almacen = :numAlmacen AND id_producto = :idProducto");
+					$actualizarCantidad->bindParam(":cantidadRetirar", $cantidadRetirar);
+					$actualizarCantidad->bindParam(":numAlmacen", $informacion["numeroAlmacen"]);
+					$actualizarCantidad->bindParam(":idProducto", $id_producto);
+					$actualizarCantidad->execute();
+
+					#}
+
+					$cantidadCompra -= $cantidadRetirar;
+
+					if ($cantidadCompra <= 0) { // Si ya no hay que retirar ningún producto más, se sale del bucle FOREACH
+						break;
+					}
 				}
 
-				$num_almacen = $array["NUM_ALMACEN"];
-
-				if($array["CANTIDAD"]>$cantidad){
-					$stmt=$conn->prepare("UPDATE almacena SET CANTIDAD = CANTIDAD - '$retirar' WHERE NUM_ALMACEN = '$num_almacen' and ID_PRODUCTO = '$id_producto'");
-				}else{
-					$stmt=$conn->prepare("DELETE FROM almacena WHERE NUM_ALMACEN = '$num_almacen' and ID_PRODUCTO = '$id_producto'");
-				}
-
-				$stmt->execute();
-
-				$cantidad-=$retirar;
-
-				if($cantidad==0){
-					break;
-				}
-
+			} catch (PDOException $ex) {
+				echo "<p>Ha ocurrido un error al actualizar el Stock de uno de los almacenes: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span>. La compra no se ha realizado.</p></br>";
+				$conexion->rollBack();
+				return false;
 			}
 
-			
-			if(!$conn->commit()){
-				echo "<p>Error: No se ha podido realizar la compra.</p>";
-			}else{
-				echo "<p>Gracias por su compra.</p>";
+			try {
+				$agregarCompra = $conexion->prepare("INSERT INTO compra VALUES (:nifCliente, :idProducto, CURRENT_TIMESTAMP, :cantidadComprada)");
+				$agregarCompra->bindParam(":nifCliente", $nifCliente);
+				$agregarCompra->bindParam(":idProducto", $id_producto);
+				$agregarCompra->bindParam(":cantidadComprada", $totalUnidadesComprar);
+				$agregarCompra->execute();
+
+				$conexion->commit();
+				return true;
+
+			} catch (PDOException $ex) {
+				echo "<p>Ha ocurrido un error al intentar confirmar la Compra: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span>. La compra, finalmente, no se ha realizado.</p></br>";
+				$conexion->rollBack();
+				return false;
 			}
 
-		}else{
-			echo "<p>No hay suficiente stock.</p>";
+		} else {
+			// Si no hay suficientes productos, no se realiza la compra
+			echo "<p>Lo sentimos, parece que no tenemos tantas unidades disponibles de este producto.</p></br>";
 		}
 	
 	}
-				
+		
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#	- Se añade el 'justificante' de la compra a la tabla 'compra' (INSERT en la tabla 'compra').
+#	- Se añade el parámetro 'nifCliente', para poder ejecutar el INSERT en la tabla 'compra'
+#	- Se añade la posibilidad de hacer un Roll Back si ocurre algún error a mitad del proceso
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)	
 }
-/* 	- Función: "obtenerAlmacenes". 
-	- Parámetros: $conexion.
-	- Funcionalidad: Obtener todos los almacenes.
-	- Valor de retorno: Array asociativo $almacenes.
-	- Dev:Edu Gutierrez
-	*/
 
-function obtenerAlmacenes($conexion){
 
-		$sql="SELECT * FROM almacen";
-		$stmt=$conexion->prepare($sql);
-		$stmt->execute();
-		$almacenes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		return $almacenes;
 
+function obtenerAlmacenes() {
+# Función 'obtenerAlmacenes'. 
+# Parámetros: 
+# 	- (ninguno)
+#
+# Funcionalidad:
+# Obtiene todos los datos de la tabla 'almacen'
+#
+# Retorna: Información sobre la tabla / NULL si hay algún error
+#
+# Código por Edu Gutierrez y Marco Santiago (ambos hicieron su versión de la misma función)
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	// Sentencia anterior:
+	// SELECT * FROM $tabla
+	try {
+		$obtenerInfo = $conexion->prepare("SELECT * FROM almacen");
+		$obtenerInfo->execute();
+		return $obtenerInfo->fetchAll(PDO::FETCH_ASSOC); # Si falla, devuelve NULL por defecto
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver los datos de los Almacenes: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		return null;
 	}
-	/* 	
-	- Función: "obtenerProdAlmacenes". 
-	- Parámetros: $conexion, $num_almacen.
-	- Funcionalidad: Obtener los datos de productos de un almacén.
-	- Valor de retorno: none.
-	- Dev:Edu Gutierrez
-	*/
+	
 
-function obtenerProdAlmacenes($conexion, $num_almacen){
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#   - Modificada la sentencia de INSERT, y la forma de gestionar el 'acceso' a la base de datos, para mayor claridad (no hay cambios relevantes, únicamente estéticos)
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
+}
 
-	$sql="SELECT * FROM almacena LEFT JOIN producto on almacena.ID_PRODUCTO=producto.ID_PRODUCTO WHERE NUM_ALMACEN='$num_almacen'";
-	$stmt=$conexion->prepare($sql);
-	$stmt->execute();
-	$id_productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-	foreach($id_productos as $producto){
-			echo "ID:<strong> ".$producto['ID_PRODUCTO']."</strong> NOMBRE:<strong>  ".$producto['NOMBRE']."</strong> PRECIO:<strong>  ".$producto['PRECIO']."</strong> <br>";
+
+function obtenerClientes() {
+# Función 'obtenerClientes'. 
+# Parámetros: 
+# 	- (ninguno)
+#
+# Funcionalidad:
+# Obtiene todos los datos de la tabla 'cliente'
+#
+# Retorna: Información sobre la tabla / NULL si hay algún error
+#
+# Código por Raquel Alcázar
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	// Sentencia anterior:
+	// SELECT * FROM $tabla
+	try {
+		$obtenerInfo = $conexion->prepare("SELECT * FROM cliente");
+		$obtenerInfo->execute();
+		return $obtenerInfo->fetchAll(PDO::FETCH_ASSOC); # Si falla, devuelve NULL por defecto
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver los datos de los Clientes: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		return null;
+	}
+	
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
+}
+
+
+
+function obtenerProductosAlmacenes($num_almacen){
+# Función 'obtenerProductosAlmacenes'. 
+# Parámetros: 
+# 	- $num_almacen (número del almacen del cual se quieren obtener los productos)
+#
+# Funcionalidad:
+# Obtiene todos los datos de los productos que posee un almacén
+#
+# Retorna: (nada, los valores de retorno se muestran por pantalla)
+#
+# Código por Edu Gutierrez
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	try {
+		$obtenerProductos = $conexion->prepare("SELECT producto.nombre AS 'nombreProducto', producto.id_producto AS 'idProducto', producto.precio AS 'precioProducto', almacena.cantidad AS 'cantidadProducto' FROM almacena LEFT JOIN producto ON almacena.id_producto = producto.id_producto WHERE num_almacen = :numAlmacen");
+		$obtenerProductos->bindParam(":numAlmacen", $num_almacen);
+		$obtenerProductos->execute();
+
+		$productos = $obtenerProductos->fetchAll(PDO::FETCH_ASSOC);
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver los productos existentes en este almacén: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		$productos = null;
+	}
+	
+	if ($productos == null) {
+		echo "<p>Lo sentimos, pero parece que este almacén no tiene ningún producto.</p></br>";
+	} else {
+		echo "<table border='1'><tr><th>ID Producto</th><th>Nombre</th><th>Precio</th><th>Cantidad Disponible</th></tr>";
+		foreach($productos as $producto) {
+			echo "<tr>
+					<td>". $producto["idProducto"] . "</td>
+					<td>". $producto["nombreProducto"] ."</td>
+					<td>". $producto["precioProducto"] ."</td>
+					<td>". $producto["cantidadProducto"] ."</td>
+				 </tr>";
 		}
+		echo "</table>";
 	}
 
-/* 	- Función: "consultarCompras". 
-	- Parámetros: $conn, $nif, $fecha_desde, $fecha_hasta.
-	- Funcionalidad: Obtener las compras realizadas por un cliente en un periodo de tiempo.
-	- Valor de retorno: Array asociativo $comprasCliente.*/
-function consultarCompras($conn, $nif, $fecha_desde, $fecha_hasta){
-	$sql="SELECT compra.ID_PRODUCTO, producto.NOMBRE, compra.UNIDADES, (producto.PRECIO * compra.UNIDADES) as precioCompra FROM compra, producto WHERE compra.ID_PRODUCTO = producto.ID_PRODUCTO and (FECHA_COMPRA >= '$fecha_desde' and FECHA_COMPRA <= '$fecha_hasta') and NIF = '$nif'";
-
-	$stmt=$conn->prepare($sql);
-	$stmt->execute();
-
-	$comprasCliente = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-	return $comprasCliente;
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#	- Se transforma la información en texto plano a HTML (en formato tabla)
+#	- Se modifica la consulta, para que devuelva únicamente los valores usados
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
 }
 
-/* 	- Función: "verCompras". 
-	- Parámetros: $conn.
-	- Funcionalidad: Visualizar las compras.
-	- Valor de retorno: Ninguno.
-	- Dev: Raquel Alcázar*/
+
+
+function consultarCompras($nif, $fecha_desde, $fecha_hasta){
+# Función 'consultarCompras'. 
+# Parámetros: 
+# 	- $nif (NIF del cliente del cual se quiere comprobar su historial de compras)
+#	- $fecha_desde (fecha de inicio, desde la cual se empieza a buscar en el historial)
+#	- $fecha_hasta (fecha de fin, desde la cual se termina de buscar en el historial)
+#
+# Funcionalidad:
+# Obtiene las compras relizadas por un cliente en un periodo de tiempo
+#
+# Retorna: Compras realizadas / NULL, si hay algún error o no hay compras
+#
+# Código por Raquel Alcázar
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	// Corrección de fechas para adecuarse al tipo de dato DATETIME, en vez de DATE en la base de datos
+	$fecha_desde = $fecha_desde . " 00:00:00";
+	$fecha_hasta = $fecha_hasta . " 23:59:59";
+
+	try {
+		$obtenerCompras = $conexion->prepare("SELECT compra.id_producto, producto.nombre, compra.unidades, (producto.precio * compra.unidades) as precioCompra FROM compra LEFT JOIN producto ON compra.id_producto = producto.id_producto WHERE compra.ID_PRODUCTO = producto.ID_PRODUCTO and (FECHA_COMPRA >= :fechaDesde and FECHA_COMPRA <= :fechaHasta) and NIF = :nifCliente");
+		$obtenerCompras->bindParam(":fechaDesde", $fecha_desde);
+		$obtenerCompras->bindParam(":fechaHasta", $fecha_hasta);
+		$obtenerCompras->bindParam(":nifCliente", $nif);
+		$obtenerCompras->execute();
+
+		return $obtenerCompras->fetchAll(PDO::FETCH_ASSOC);
+	} catch(PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver las compras que ha realizado este cliente: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		return null;
+	}
+
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#	- Se modifica la consulta, de forma únicamente estética
+# 	- Se ajustan las fechas (fecha_desde, fecha_hasta) para ajustarse al tipo de dato 'DATETIME' de la base de datos, y por tanto evitar errores
+#	- Se añade un TRY-CATCH para que sea la propia función quien trata los errores
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
+}
+
+
+
 function verCompras($compras){
+# Función 'verCompras'. 
+# Parámetros: 
+# 	- $compras (array asociativo con todas las compras realizadas por un cliente)
+#
+# Funcionalidad:
+# Obtiene todos los datos de la tabla 'cliente'
+#
+# Retorna: (nada, los valores de retorno se muestran por la pantalla)
+#
+# Código por Raquel Alcázar
+# Refactorizado por Daniel González Carretero
 
-	$sum = 0;
+	$sumaTotal = 0;
 
-	if($compras!=null){
-		echo "<h1>Compras realizadas</h1>
-						<table border='1'>
-							<tr>
-								<th>Producto</th>
-								<th>Nombre producto</th>
-								<th>Unidades</th>
-								<th>Precio de compra</th>
-							</tr>";
+	if($compras != null){
+		echo "<table border='1'><tr><th>ID Producto</th><th>Nombre</th><th>Unidades</th><th>Precio de compra</th></tr>";
 
-				foreach ($compras as $compra => $datos) {
-					echo "<tr>
-							<td>" .$datos["ID_PRODUCTO"] ."</td>
-							<td>" .$datos["NOMBRE"] ."</td>
-							<td>" .$datos["UNIDADES"] ."</td>
-							<td>" .$datos["precioCompra"] ."</td>
-						</tr>";
+		foreach ($compras as $compra => $datos) {
+			echo "<tr>
+					<td>". $datos["id_producto"] ."</td>
+					<td>". $datos["nombre"] ."</td>
+					<td>". $datos["unidades"] ."</td>
+					<td>". $datos["precioCompra"] ."</td>
+				 </tr>";
 
-						$sum += $datos["precioCompra"];
-				}
+			$sumaTotal += $datos["precioCompra"];
+		}
 
-				echo "<tr>
-						<th colspan=3>Total</th>
-						<td>" .$sum ."</td>
-					</tr>";
-
-				echo "</table>";
-	}else{
-		echo "<p>No hay registros de compras.</p>";
+		echo "<tr>
+				<th colspan=3>Precio Total</th>
+				<td>" .$sumaTotal ." €</td>
+			 </tr></table>";
+	} else {
+		echo "<p>Lo sentimos, pero parece que este cliente no ha hecho ninguna compra.</p>";
 	}
+
+# Cambios de Refactorización Realizados:
+# 	- Ordenada la función para mayor legibilidad al remarcar la jerarquía HTML
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
 }
 
-    function get_almacenes($conn){
-	    /* 	- Función: "get_almacenes". 
-	- Parámetros: $conn.
-	- Funcionalidad: obtener almacenes.
-	- Valor de retorno: array de almacenes.
-	- Dev: Marco Santiago*/
-        try{
-            $almacenes = $conn->query("SELECT * from almacen")->fetchAll(PDO::FETCH_ASSOC);
-            echo "Gen almacenes succesfully<br>";
-            
-            return $almacenes;
-        }
-        catch(Exception $e) {
-            echo("Error obtener almacenes -->".$e->getMessage()."</br>");
-        }
-    }
-    function get_producto($conn){
-/* 	- Función: "get_producto". 
-	- Parámetros: $conn.
-	- Funcionalidad: obtener productos.
-	- Valor de retorno: Array productos.
-	- Dev: Marco Santiago*/
-        try{
-            $almacenes = $conn->query("SELECT * from producto")->fetchAll(PDO::FETCH_ASSOC);
-            echo "Gen almacenes succesfully<br>";
-            
-            return $almacenes;
-        }
-        catch(Exception $e) {
-            echo("Error obtener productos -->".$e->getMessage()."</br>");
-        }
-    }
-    function update_producto($conn){
-/* 	- Función: "update_producto". 
-	- Parámetros: $conn.
-	- Funcionalidad: actualizar productos.
-	- Valor de retorno: nada.
-	- Dev: Marco Santiago*/
-        try{
-            $almacen=$_POST["almacen"];
-            $producto=$_POST["producto"];
-            $cantidad=$_POST["cantidad"];
-            $almacen=explode("-",$almacen);
-            $almacen=$almacen[0];
-            $stmt = $conn->prepare("insert into almacena (NUM_ALMACEN,ID_PRODUCTO,CANTIDAD)values('$almacen','$producto','$cantidad')");
-                $stmt->bindParam(':almacen', $almacen);
-                $stmt->bindParam(':producto', $producto);
-                $stmt->bindParam(':cantidad', $cantidad);
-            $stmt->execute();
 
-            echo("Insert succesfully");
+function agregarProductosAlmacen($numAlmacen, $idProducto, $cantidad){
+# Función 'agregarProductosAlmacen'. 
+# Parámetros: 
+# 	- $numAlmacen (número del almacén al que se quieren agregar existencias)
+#	- $idProducto (ID del producto del cual se quieren agregar existencias)
+#	- $cantidad (número de existencias a agregar)
+#
+# Funcionalidad:
+# Añade cierta cantidad de un producto concreto al stock de un almacén
+#
+# Retorna: TRUE / FALSE, dependiendo de si ha ocurrido o no algún error
+#
+# Código por Marco Santiago
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+    try {
+
+        
+
+        $conexion->beginTransaction();
+
+        $comprobarExistencia = $conexion->prepare("SELECT * FROM almacena WHERE num_almacen = :numAlmacen AND id_producto = :idProducto");
+        $comprobarExistencia->bindParam(":numAlmacen", $numAlmacen);
+        $comprobarExistencia->bindParam(":idProducto", $idProducto);
+        $comprobarExistencia->execute();
+
+        $hayProductoAlmacen = $comprobarExistencia->fetch(PDO::FETCH_ASSOC) != null;
+
+        if ($hayProductoAlmacen) {
+        	// Si en la tabla 'almacena' ya está registrado ese producto en ese almacén, se Actualiza
+        	# PENDIENTE DE CONFIRMAR POR EL CLIENTE / SISTEMAS [¿Si un almacén ya está registrado, se establecen las uds (cantidad = :cantidad), o se añaden (cantidad += :cantidad)?]
+        	$insertarProducto = $conexion->prepare("UPDATE almacena SET cantidad = cantidad + :cantidad WHERE num_almacen = :numAlmacen AND id_producto = :idProducto");
+            $insertarProducto->bindParam(':numAlmacen', $numAlmacen);
+            $insertarProducto->bindParam(':idProducto', $idProducto);
+            $insertarProducto->bindParam(':cantidad', $cantidad);
+            $insertarProducto->execute();
+
+        } else {
+        	// Si aún no se ha registrado ese producto en ese almacén, se Inserta
+        	$insertarProducto = $conexion->prepare("INSERT INTO almacena (NUM_ALMACEN, ID_PRODUCTO, CANTIDAD) VALUES (:numAlmacen, :idProducto, :cantidad)");
+            $insertarProducto->bindParam(':numAlmacen', $numAlmacen);
+            $insertarProducto->bindParam(':idProducto', $idProducto);
+            $insertarProducto->bindParam(':cantidad', $cantidad);
+            $insertarProducto->execute();
         }
-        catch(PDOException $e) {
-            echo("Error update producto: -->".$e->getMessage()."</br>");
-        }
+
+        $conexion->commit();
+        return true;
+       
+    } catch(PDOException $ex) {
+        echo "<p>Ha ocurrido un error al intentar actualizar la información sobre los productos de un almacén: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+        $conexion->rollBack();
+        return false;
     }
-?>
+
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#	- Se añade la posibilidad de hacer un Roll Back en caso de que algo falle, o Commit si todo funciona como se esperaba
+#	- Se añade la sentencia del UPDATE, en caso de que el registro del almacén y el producto indicado ya existiese
+#	- Se obliga a pasar los datos por parámetros, en vez de acceder a ellos mediante la variable $_REQUEST
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)
+}
+
+
+
+function obtenerClienteNIF($nif) {
+# Función 'obtenerClienteNIF'. 
+# Parámetros: 
+# 	- $nif (NIF del cliente del que se quiere obtener los datos)
+#
+# Funcionalidad:
+# Obtiene toda la información de un cliente, buscándolo por NIF
+#
+# Retorna: Los datos del Cliente / NULL si no existe el cliente o ha ocurrido un error
+#
+# Código por Daniel González Carretero
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	try {
+		$consulta = $conexion->prepare("SELECT * FROM cliente WHERE nif = :nif");
+		$consulta->bindParam(":nif", $nif);
+		$consulta->execute();
+		return $consulta->fetch(PDO::FETCH_ASSOC);
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver los datos del cliente que se busca por este NIF: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		return null;
+	}
+
+# Cambios de Refactorización Realizados:
+# 	- Se usa la variable global $conexion
+#	- Se añade el TRY-CATCH, para que sea la propia función quien trata los errores
+#	- Añadida la documentación de la función, para una coherencia de estilo
+} 
+
+
+
+function insertarCliente($nif, $nombre, $apellido, $codigoPostal, $direccion, $ciudad) {
+# Función 'obtenerClienteNIF'. 
+# Parámetros: 
+# 	- $nif (NIF del cliente que se quiere insertar)
+#	- $nombre (Nombre del cliente)
+#	- $apellido (Apellido/s del cliente)
+#	- $codigoPostal (Código Postal del cliente)
+#	- $direccion (Dirección del cliente)
+#	- $ciudad (Ciudadl donde vive el cliente / ciudad donde se encuentra la dirección)
+#
+# Funcionalidad:
+# Inserta un nuevo cliente en la tabla 'cliente'
+#
+# Retorna: TRUE / FALSE, según si se ha ejecutado o no correctamente
+#
+# Código por Daniel González Carretero
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+	try {
+		$conexion->beginTransaction();
+
+		$insertCliente = $conexion->prepare("INSERT INTO cliente (nif, nombre, apellido, cp, direccion, ciudad) VALUES (:nif, :nombre, :apellido, :cp, :direccion, :ciudad)");
+		$insertCliente->bindParam(":nif", $nif);
+		$insertCliente->bindParam(":nombre", $nombre);
+		$insertCliente->bindParam(":apellido", $apellido);
+		$insertCliente->bindParam(":cp", $codigoPostal);
+		$insertCliente->bindParam(":direccion", $direccion);
+		$insertCliente->bindParam(":ciudad", $ciudad);
+		$insertCliente->execute();
+
+		$conexion->commit();
+		return true;
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al intentar dar de Alta al Cliente: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		$conexion->rollBack();
+		return false;
+	}
+
+# Cambios de Refactorización Realizados:
+# 	- Se usa la variable global $conexión
+#	- Se añade la posibilidad de hacer un Roll Back en caso de que algo falle, o Commit si todo funciona como se esperaba
+#	- Se añade el TRY-CATCH, para que sea la propia función quien trata los errores
+#	- Añadida la documentación de la función, para una coherencia de estilo
+}
 
 ?>
