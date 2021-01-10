@@ -1,5 +1,5 @@
 ### IMPORTANTE
-Todos los archivos (incluído el archivo con código SQL 'creacionBaseDatos.sql') han sido refactorizados, y por tanto su contenido NO ES EL MISMO.
+Todos los archivos (incluído el archivo con código SQL 'creacionBaseDatos.sql') han sido modificados, y por tanto su contenido NO ES EL MISMO.
 
 Antes de implementar este programa, o seguir desarrollándolo, hay que hacer lo siguiente:
 
