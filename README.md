@@ -30,7 +30,7 @@ En caso de que vayas a seguir escribiendo código, por favor consulta las nuevas
 |                                               |                  |                |
 | Refactorización de los apartados (1 - 10)     | Dani             | [DONE]         |
 |                                               |                  |                |
-| Apartado 11 (Registro de Clientes)            | (???)            | [NOT ASSIGNED] |
+| Apartado 11 (Registro de Clientes)            | (Silvia          | [PENDING]      |
 | Apartado 12 (Formulario LogIn)                |     		   |  		    |
 |      -> Con Cookies		                | (???)            | [NOT ASSIGNED] |
 |      -> Con Sesiones		                | (???)            | [NOT ASSIGNED] |
