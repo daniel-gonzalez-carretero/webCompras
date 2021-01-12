@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<?php
+session_start();
+?>
 <html>
 <head>
 	<title>Ejercicio 11</title>
@@ -15,6 +18,24 @@
 		<input type="text" name="clave" required/>
 
 		<input type="submit" />
-	</form>>
+	</form>
 </body>
 </html>
+<?php	
+	include_once("funciones.php");
+
+	if (isset($_POST) && !empty($_POST)) {
+
+		$usuario = $_POST["usuario"];
+		$clave = $_POST["clave"];
+
+		$consulta = comprobarCliente($usuario, $clave);
+
+		if($consulta != null){
+			setcookie($consulta["NIF"], $clave, time() + (86400 * 30), "/"); 
+
+		}	
+
+	}
+				
+?>
