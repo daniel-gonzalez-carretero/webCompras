@@ -874,4 +874,40 @@ function insertarCliente($nif, $nombre, $apellido, $codigoPostal, $direccion, $c
 #	- Añadida la documentación de la función, para una coherencia de estilo
 }
 
+function comprobarCliente($usuario, $clave){
+# Función 'comprobarCliente'. 
+# Parámetros: 
+# 	- $usuario (usuario del cliente)
+#	- $clave (clave del cliente)
+#
+# Funcionalidad:
+# Comprobar que existe un cliente con ese $usuario y $clave
+#
+# Retorna: Los datos (NIF, APELLIDO) del Cliente / NULL si no existe el cliente o ha ocurrido un error
+#
+# Código por Raquel Alcázar Mesia
+	global $conexion;
+
+	try {
+		$consulta = $conexion->prepare("SELECT APELLIDO, NIF FROM cliente WHERE NOMBRE = :usuario");
+		$consulta->bindParam(":usuario", $usuario);
+		$consulta->execute();
+		$datos = $consulta -> fetch(PDO::FETCH_ASSOC);
+
+		if($datos["APELLIDO"]==null){
+			echo "El usuario no existe.";
+		}else{
+			if($clave != strrev($datos["APELLIDO"])){
+				echo "Clave introducida incorrecta.";
+			}else{
+				return $datos;
+			}
+		}
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver los datos del cliente que se busca por este NIF: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		return null;
+	}
+}
+
 ?>
