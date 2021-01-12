@@ -6,19 +6,15 @@
 	<meta name="author" value="Silvia Ranera" />
 </head>
 <body>
-	<h1>Web Compras</h1>
-	<h2>Registro de clientes</h2>
+	<h1>Iniciar Sesión</h1>
+	<form method="post" action="<?php echo htmlentities($_SERVER["PHP_SELF"]);?>">
+		<label for="usuario">Usuario:</label>
+		<input type="text" name="usuario" required/>
 
-			<div>
-				
-				<label for="usuario">Usuario:</label>
-				<input type="text" name="usuario" id="usuario"/>
-					
-				<label for="clave">Clave:</label>
-				<input type="text" name="clave" id="clave"/>
-				
-			</div>
+		<label for="clave">Clave:</label>
+		<input type="text" name="clave" required/>
 
-
+		<input type="submit" />
+	</form>>
 </body>
 </html>
