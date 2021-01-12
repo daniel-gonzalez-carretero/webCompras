@@ -28,12 +28,21 @@ En caso de que vayas a seguir escribiendo código, por favor consulta las nuevas
 | Apartado 9  (Consulta de Almacenes)           | Edu              | [DONE]         |
 | Apartado 10 (Consulta de Compras)             | Raquel           | [DONE]         |
 |                                               |                  |                |
-| Refactorización de los apartados anteriores   | Dani             | [DONE]         |
+| Refactorización de los apartados (1 - 10)     | Dani             | [DONE]         |
 |                                               |                  |                |
 | Apartado 11 (Registro de Clientes)            | (???)            | [NOT ASSIGNED] |
-| Apartado 12 (Formulario LogIn)                | (???)            | [NOT ASSIGNED] |
-| Apartado 13 (Carrito de la Compra)            | (???)            | [NOT ASSIGNED] |
-| Apartado 14 (Consulta de Compras)             | (???)            | [NOT ASSIGNED] |
+| Apartado 12 (Formulario LogIn)                |     		   |  		    |
+|      -> Con Cookies		                | (???)            | [NOT ASSIGNED] |
+|      -> Con Sesiones		                | (???)            | [NOT ASSIGNED] |
+| Apartado 13 (Carrito de la Compra)            |     		   |  		    |
+|      -> Con Cookies		                | (???)            | [NOT ASSIGNED] |
+|      -> Con Sesiones		                | (???)            | [NOT ASSIGNED] |
+| Apartado 14 (Consulta de Compras)             |     		   |  		    |
+|      -> Con Cookies		                | (???)            | [NOT ASSIGNED] |
+|      -> Con Sesiones		                | (???)            | [NOT ASSIGNED] |
+|                                               |                  |                |
+| Refactorización de los apartados (11 - 14)    | (???)            | [NOT ASSIGNED] |
+|                                               |                  |                |
 
 
 
