@@ -899,10 +899,10 @@ function comprobarCliente($usuario, $clave){
 		}else{
 			if($clave != strrev($datos["APELLIDO"])){
 				echo "Clave introducida incorrecta.";
-			}else{
-				return $datos;
 			}
 		}
+		
+		return $datos;
 
 	} catch (PDOException $ex) {
 		echo "<p>Ha ocurrido un error al devolver los datos del cliente que se busca por este NIF: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
