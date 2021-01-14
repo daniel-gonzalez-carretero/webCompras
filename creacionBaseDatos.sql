@@ -73,6 +73,10 @@ ALTER TABLE producto MODIFY ID_PRODUCTO varchar(10);
 ALTER TABLE producto MODIFY NOMBRE varchar(50);
 ALTER TABLE compra MODIFY ID_PRODUCTO varchar(10);
 ALTER TABLE almacena MODIFY ID_PRODUCTO varchar(10);
+                     
+-- Sobre la tabla 'compra', para admitir no solo Fecha, sino también Hora (CURRENT_TIMESTAMP);
+ALTER TABLE compra MODIFY FECHA_COMPRA DATETIME;
+
 
 -- Inserción de las categorías (proporcionadas por el cliente) [OPCIONAL]
 INSERT INTO `categoria` (`ID_CATEGORIA`, `NOMBRE`) VALUES
