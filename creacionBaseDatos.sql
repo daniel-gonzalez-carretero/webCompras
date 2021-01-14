@@ -77,6 +77,9 @@ ALTER TABLE almacena MODIFY ID_PRODUCTO varchar(10);
 -- Sobre la tabla 'compra', para admitir no solo Fecha, sino también Hora (CURRENT_TIMESTAMP);
 ALTER TABLE compra MODIFY FECHA_COMPRA DATETIME;
 
+-- Sobre la tabla 'cliente', para establecer nombre de usuario y contraseña:
+ALTER TABLE cliente ADD USUARIO VARCHAR(40) NOT NULL;
+ALTER TABLE cliente ADD PASSWORD VARCHAR(256) NOT NULL; -- VARCHAR de 256, por recomendación de la documentación de PHP sobre la función password_hash()
 
 -- Inserción de las categorías (proporcionadas por el cliente) [OPCIONAL]
 INSERT INTO `categoria` (`ID_CATEGORIA`, `NOMBRE`) VALUES
