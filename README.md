@@ -30,12 +30,12 @@ En caso de que vayas a seguir escribiendo código, por favor consulta las nuevas
 |                                               |                  |                |
 | Refactorización de los apartados (1 - 10)     | Dani             | [DONE]         |
 |                                               |                  |                |
-| Apartado 11 (Registro de Clientes)            | Silvia           | [PENDING PHP]  |
+| Apartado 11 (Registro de Clientes)            | Dani             | [DONE]         |
 | Apartado 12 (Formulario LogIn)                |     		   |  		    |
 |      -> Con Cookies		                | Raquel           | [PENDING]      |
-|      -> Con Sesiones		                | (???)            | [NOT ASSIGNED] |
+|      -> Con Sesiones		                | Marco            | [PENDING]      |
 | Apartado 13 (Carrito de la Compra)            |     		   |  		    |
-|      -> Con Cookies		                | Dani             | [PENDING]      |
+|      -> Con Cookies		                | (???)            | [NOT ASSIGNED] |
 |      -> Con Sesiones		                | (???)            | [NOT ASSIGNED] |
 | Apartado 14 (Consulta de Compras)             |     		   |  		    |
 |      -> Con Cookies		                | (???)            | [NOT ASSIGNED] |
