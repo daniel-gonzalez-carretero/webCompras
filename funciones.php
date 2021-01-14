@@ -846,16 +846,22 @@ function insertarCliente($nif, $nombre, $apellido, $codigoPostal, $direccion, $c
 # Refactorizado por Daniel González Carretero
 
 	global $conexion;
+
+	$usuario = preg_replace('/\s+/', '', strtolower($nombre)); // El usuario es el nombre, en minúsculas. Si hay espacios se eliminan
+	$password = strrev(preg_replace('/\s+/', '', strtolower($apellido))); // La contraseña es el apellido en minúsculas, sin espacios y en orden inverso. No se eliminan las tildes, aunque se debería.
+
 	try {
 		$conexion->beginTransaction();
 
-		$insertCliente = $conexion->prepare("INSERT INTO cliente (nif, nombre, apellido, cp, direccion, ciudad) VALUES (:nif, :nombre, :apellido, :cp, :direccion, :ciudad)");
+		$insertCliente = $conexion->prepare("INSERT INTO cliente (nif, nombre, apellido, cp, direccion, ciudad, usuario, password) VALUES (:nif, :nombre, :apellido, :cp, :direccion, :ciudad, :usuario, :password)");
 		$insertCliente->bindParam(":nif", $nif);
 		$insertCliente->bindParam(":nombre", $nombre);
 		$insertCliente->bindParam(":apellido", $apellido);
 		$insertCliente->bindParam(":cp", $codigoPostal);
 		$insertCliente->bindParam(":direccion", $direccion);
 		$insertCliente->bindParam(":ciudad", $ciudad);
+		$insertCliente->bindParam(":usuario", $usuario);
+		$insertCliente->bindParam(":password", $password);
 		$insertCliente->execute();
 
 		$conexion->commit();
@@ -872,6 +878,8 @@ function insertarCliente($nif, $nombre, $apellido, $codigoPostal, $direccion, $c
 #	- Se añade la posibilidad de hacer un Roll Back en caso de que algo falle, o Commit si todo funciona como se esperaba
 #	- Se añade el TRY-CATCH, para que sea la propia función quien trata los errores
 #	- Añadida la documentación de la función, para una coherencia de estilo
+
+# Cambios (14 / 01 / 2021, Daniel González Carretero) -> Se añade la información a las nuevas columnas 'usuario' y 'password'
 }
 
 function comprobarCliente($usuario, $clave){
