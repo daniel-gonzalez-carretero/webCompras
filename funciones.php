@@ -849,7 +849,7 @@ function insertarCliente($nif, $nombre, $apellido, $codigoPostal, $direccion, $c
 
 	$usuario = preg_replace('/\s+/', '', strtolower($nombre)); // El usuario es el nombre, en minúsculas. Si hay espacios se eliminan
 	$password = strrev(preg_replace('/\s+/', '', strtolower($apellido))); // La contraseña es el apellido en minúsculas, sin espacios y en orden inverso. No se eliminan las tildes, aunque se debería.
-
+	$password = password_hash($password, PASSWORD_DEFAULT); // Se encripta la contraseña, con el algoritmo predeterminado por PHP
 	try {
 		$conexion->beginTransaction();
 
