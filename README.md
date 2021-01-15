@@ -32,7 +32,7 @@ En caso de que vayas a seguir escribiendo código, por favor consulta las nuevas
 |                                               |                  |                |
 | Apartado 11 (Registro de Clientes)            | Dani             | [DONE]         |
 | Apartado 12 (Formulario LogIn)                |     		   |  		    |
-|      -> Con Cookies		                | Raquel           | [PENDING]      |
+|      -> Con Cookies		                | Raquel           | [DONE]   	    |
 |      -> Con Sesiones		                | Marco            | [PENDING]      |
 | Apartado 13 (Carrito de la Compra)            |     		   |  		    |
 |      -> Con Cookies		                | (???)            | [NOT ASSIGNED] |
