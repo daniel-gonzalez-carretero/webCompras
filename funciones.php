@@ -904,19 +904,14 @@ function comprobarCliente($usuario, $clave){
 
 	
 		if($datos["nif"]==null || !password_verify($clave, $datos["password"])){
-			echo "Los datos introducidos son incorrectos.";
 			return null;
 		}else{
 			return $datos;
 		}
-
-		return $datos;
 
 	} catch (PDOException $ex) {
 		echo "<p>Ha ocurrido un error al devolver los datos del cliente que se busca por este NIF: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
 		return null;
 	}
 }
-?>
-
 ?>
