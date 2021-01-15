@@ -59,6 +59,12 @@
 			// Se ejecuta la inserción de los datos
 				if ( insertarCliente($nif, $nombre, $apellido, $cp, $direc, $ciudad) ) {
 					echo "<p>Se ha dado de alta al cliente correctamente.</p>";
+					echo "<p>Sus credenciales son: </p>";
+					echo "<ul>
+							<li><strong>Usuario: </strong>". preg_replace('/\s+/', '', strtolower($nombre)) ."</li>
+							<li><strong>Contraseña: [</strong><span style='color: white'>". strrev(preg_replace('/\s+/', '', strtolower($apellido))) ."</span>]</li>
+							<li>Para ver la contraseña, haz doble click en el espacio entre los corchetes. Asegúrate de que nadie puede verla, únicamente tú.</li>
+						</ul>";
 				} // Si la función devuelve FALSE, es la propia función quien genera el mensaje de error
 
 			} else {
