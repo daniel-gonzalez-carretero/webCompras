@@ -38,7 +38,7 @@ En caso de que vayas a seguir escribiendo código, por favor consulta las nuevas
 |      -> Con Cookies		                | (???)            | [NOT ASSIGNED] |
 |      -> Con Sesiones		                | (???)            | [NOT ASSIGNED] |
 | Apartado 14 (Consulta de Compras)             |     		   |  		    |
-|      -> Con Cookies		                | Dani             | [PENDING] 	    |
+|      -> Con Cookies		                | Dani             | [DONE] 	    |
 |      -> Con Sesiones		                | Raquel           | [PENDING]      |
 |                                               |                  |                |
 | Refactorización de los apartados (11 - 14)    | (???)            | [NOT ASSIGNED] |
