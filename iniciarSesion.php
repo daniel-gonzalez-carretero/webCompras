@@ -1,7 +1,4 @@
 <!DOCTYPE html>
-<?php
-session_start();
-?>
 <html>
 <head>
 	<title>Ejercicio 11</title>
