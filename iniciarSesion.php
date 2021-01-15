@@ -7,12 +7,14 @@
 </head>
 <body>
 	<h1>Iniciar Sesión</h1>
+	<p><a href="index.html">Volver al Menú</a></p><br><br>
+
 	<form method="post" action="<?php echo htmlentities($_SERVER["PHP_SELF"]);?>">
 		<label for="usuario">Usuario:</label>
 		<input type="text" name="usuario" required/>
 
 		<label for="clave">Clave:</label>
-		<input type="text" name="clave" required/>
+		<input type="password" name="clave" required/>
 
 		<input type="submit" />
 	</form>
@@ -29,9 +31,11 @@
 		$consulta = comprobarCliente($usuario, $clave);
 
 		if($consulta != null){
-			setcookie($consulta["NIF"], $clave, time() + (86400 * 30), "/"); 
-
-		}	
+			setcookie("usuario", $consulta["nif"], time() + (86400 * 30), "/");
+			echo "<p>¡Sesión iniciada!</p>";
+		} else {
+			echo "<p>Usuario y/o la contraseña no es correcta.</p>";
+		}
 
 	}
 				
