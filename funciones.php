@@ -897,19 +897,27 @@ function comprobarCliente($usuario, $clave){
 	global $conexion;
 
 	try {
-		$consulta = $conexion->prepare("SELECT APELLIDO, NIF FROM cliente WHERE NOMBRE = :usuario");
+		$consulta = $conexion->prepare("SELECT nif, password FROM cliente WHERE nombre = :usuario");
 		$consulta->bindParam(":usuario", $usuario);
 		$consulta->execute();
 		$datos = $consulta -> fetch(PDO::FETCH_ASSOC);
 
-		if($datos["APELLIDO"]==null){
-			echo "El usuario no existe.";
+		/*Este es el código real
+		if($datos["nif"]==null || !password_verify($clave, $datos["password"])){
+			echo "Los datos introducidos son incorrectos.";
+			return null;
 		}else{
-			if($clave != strrev($datos["APELLIDO"])){
-				echo "Clave introducida incorrecta.";
-			}
+			return $datos;
+		}*/
+
+
+		//Esta es una prueba
+		if(password_verify($clave, $datos["password"])){
+			echo "contraseña correcta.";
+		}else{
+			echo "contraseña incorrecta.";
 		}
-		
+
 		return $datos;
 
 	} catch (PDOException $ex) {
@@ -917,5 +925,6 @@ function comprobarCliente($usuario, $clave){
 		return null;
 	}
 }
+?>
 
 ?>
