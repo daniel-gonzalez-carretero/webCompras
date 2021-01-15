@@ -902,20 +902,12 @@ function comprobarCliente($usuario, $clave){
 		$consulta->execute();
 		$datos = $consulta -> fetch(PDO::FETCH_ASSOC);
 
-		/*Este es el código real
+	
 		if($datos["nif"]==null || !password_verify($clave, $datos["password"])){
 			echo "Los datos introducidos son incorrectos.";
 			return null;
 		}else{
 			return $datos;
-		}*/
-
-
-		//Esta es una prueba
-		if(password_verify($clave, $datos["password"])){
-			echo "contraseña correcta.";
-		}else{
-			echo "contraseña incorrecta.";
 		}
 
 		return $datos;
