@@ -2,6 +2,28 @@
     Código por:         Raquel Alcázar 
     Refactorizado por:  Daniel González Carretero
 -->
+<?php
+	if (isset($_POST) && !empty($_POST)){
+	  // AGREGAR A LA CESTA DE LA COMPRA
+		if (isset($_POST["agregar"]) && !empty($_POST["agregar"])) {
+
+		    if (!isset($_COOKIE["cesta"])) {
+		    	$cesta[$_POST["producto"]]=$_POST["cantidad"];
+			  	$_COOKIE["cesta"]=$cesta;
+			  	echo "hola";
+			}else{
+				$cesta=$_COOKIE["cesta"];
+				$cesta[$_POST["producto"]]=$_POST["cantidad"];
+				$_COOKIE["cesta"]=$cesta;
+				echo "adios";
+			}
+		    	
+		}
+		
+		print_r($_COOKIE["cesta"]);
+
+	}
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,16 +42,6 @@
 		$clientes = obtenerClientes();
 	?>
 	<form method='post' action='<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>'>
-		<label for="cliente">Cliente:</label>
-		<select name='cliente' required>
-			<option selected disabled>Selecciona un Cliente</option>
-			<?php
-				foreach($clientes as $cliente) {
-                    echo "<option value='". $cliente["NIF"] ."'>[". $cliente["NIF"] ."]: ". $cliente["NOMBRE"] ." ". $cliente["APELLIDO"] ."</option>";
-                }
-			?>
-		</select><br>
-
 		<label for="producto">Producto:</label>
 		<select name='producto' required>
 			<option selected disabled>Selecciona un Producto</option>
@@ -38,18 +50,20 @@
                     echo "<option value='". $producto["ID_PRODUCTO"] ."'>[". $producto["ID_PRODUCTO"] ."]: ". $producto["NOMBRE"] ."</option>";
                 }
 			?>
-		</select><br>
+		</select><br><br>
 
 		<label for="cantidad">Cantidad:</label>
-		<input type="number" name="cantidad" min="1" required></br>
+		<input type="number" name="cantidad" min="1" required></br></br>
 
-		<input type='submit' value='Comprar' name='comprar'>
+		<input type="submit" value="Comprar" name="comprar">
+		<input type="submit" value="Agregar a la Cesta" name="agregar">
+		<input type="submit" value="Limpiar la Cesta" name="limpiar">
 	</form>
 	<?php	
 
 		if (isset($_POST) && !empty($_POST)) {
 			$id_producto = $_POST["producto"];
-			$nif_cliente = $_POST["cliente"];
+			$nif_cliente = $_COOKIE["usuario"];
 			$cantidad = $_POST["cantidad"];
 
 			if ( realizarCompraProducto($nif_cliente, $id_producto, $cantidad) ) {
