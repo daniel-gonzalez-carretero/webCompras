@@ -32,14 +32,16 @@ En caso de que vayas a seguir escribiendo código, por favor consulta las nuevas
 |                                               |                  |                |
 | Apartado 11 (Registro de Clientes)            | Dani             | [DONE]         |
 | Apartado 12 (Formulario LogIn)                |     		   |  		    |
+|      -> Formulario                            | Silvia           | [DONE]         |
 |      -> Con Cookies		                | Raquel           | [DONE]   	    |
-|      -> Con Sesiones		                | Marco            | [PENDING]      |
+|      -> Con Sesiones		                | Raquel           | [DONE]         |
 | Apartado 13 (Carrito de la Compra)            |     		   |  		    |
-|      -> Con Cookies		                | (???)            | [NOT ASSIGNED] |
-|      -> Con Sesiones		                | (???)            | [NOT ASSIGNED] |
+|      -> Formulario                            | Silvia           | [DONE]         |
+|      -> Con Cookies		                | Daniel           | [PENDING]      |
+|      -> Con Sesiones		                | Raquel           | [PENDING]      |
 | Apartado 14 (Consulta de Compras)             |     		   |  		    |
 |      -> Con Cookies		                | Dani             | [DONE] 	    |
-|      -> Con Sesiones		                | Raquel           | [PENDING]      |
+|      -> Con Sesiones		                | Raquel           | [DONE]         |
 |                                               |                  |                |
 | Refactorización de los apartados (11 - 14)    | (???)            | [NOT ASSIGNED] |
 |                                               |                  |                |
