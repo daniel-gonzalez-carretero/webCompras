@@ -1,3 +1,9 @@
+<?php 
+	// Si el usuario ya ha iniciado sesión, se le manda directamente a 'welcome.php'
+	if (isset($_COOKIE) && !empty($_COOKIE) && isset($_COOKIE["usuario"])) {
+		header("location: welcome.php"); 
+	}
+?>
 <!DOCTYPE html>
 <html>
 <head>
