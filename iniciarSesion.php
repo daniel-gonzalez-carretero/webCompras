@@ -1,3 +1,6 @@
+<?php
+	setcookie("usuario","", time() - 3600);
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -29,8 +32,8 @@
 		$consulta = comprobarCliente($usuario, $clave);
 
 		if($consulta != null){
-			setcookie($consulta["NIF"], $clave, time() + (86400 * 30), "/"); 
-
+			setcookie("usuario", $consulta["nif"], time() + (86400 * 30), "/");
+			header("location: welcome.php"); 
 		}	
 
 	}
