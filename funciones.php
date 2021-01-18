@@ -914,4 +914,31 @@ function comprobarCliente($usuario, $clave){
 		return null;
 	}
 }
+
+function obtenerNombre($nif){
+# Función 'obtenerNombre'. 
+# Parámetros: 
+# 	- $nif (nif del cliente)
+#
+# Funcionalidad:
+# Recuperar el nombre del cliente correspondiente al $nif.
+#
+# Retorna: Los datos (nombre) del Cliente / NULL si no existe el cliente o ha ocurrido un error
+#
+# Código por Raquel Alcázar Mesia
+	global $conexion;
+
+	try {
+		$consulta = $conexion->prepare("SELECT nombre FROM cliente WHERE nif = :nif");
+		$consulta->bindParam(":nif", $nif);
+		$consulta->execute();
+		$datos = $consulta -> fetch(PDO::FETCH_ASSOC);
+
+		return $datos;
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver los datos del cliente que se busca por este NIF: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		return null;
+	}
+}
 ?>
