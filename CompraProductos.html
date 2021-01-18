@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Ejercicio </title>
+	<meta charset="utf-8" />
+	<meta name="author" value="Silvia Ranera" />
+</head>
+<body>
+
+	<h1>Consulta el Stock de un Producto</h1>
+	<p><a href="index.html">Volver al Menú</a></p><br><br>
+	
+	<?php 
+        include_once("funciones.php");
+        $productos = obtenerProductos();
+    ?>
+
+
+
+	<h2>Lista de productos</h2>
+	
+		<div>
+				<form method='post' action='<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>'>
+		<label for="producto">Producto: </label>
+        <select name="producto" required>
+            <option disabled selected>Selecciona un Producto</option>
+            <?php
+                foreach($productos as $producto) {
+                    echo "<option value='". $producto["ID_PRODUCTO"] ."'>[". $producto["ID_PRODUCTO"] ."]: ". $producto["NOMBRE"] ."</option>";
+                }
+            ?>
+        </select><br />
+
+		<input type='submit' value='Ver stock' name='stock'>
+	</form>
+	
+	<?php		
+		if (isset($_POST) && !empty($_POST)) {
+
+			$id_producto = $_POST["producto"];
+			$stock = consultarStock($id_producto);	
+
+			if ($stock == null) {
+				echo "<p>Parece que ninguno de nuestros almacenes tiene este producto en Stock...</p>";
+			} else {
+				verStock($stock);
+			}
+
+		}
+				
+	?>
+			
+			<label for="cantidad">Cantidad</label>
+			<input type="text" name="cantidad" id="cantidad"/>
+			
+			<label for="precio">Precio</label>
+			<input type="text" name="precio" id="precio"/></br>
+				
+			<button name="favoritos" type="button"><b>Añadir a favoritos</b></button></br>
+			
+			<button name="eliminar" type="button"><b>Eliminar</b></button></br></br>
+			
+		</div>
+	
+		<div >
+			<label for="total">Precio total</label>
+			<input type="text" name="total" id="total"/>
+			<button name="comprar" type="button"><b>Comprar productos</b></button>
+		</div>
+
+</body>
+</html>
