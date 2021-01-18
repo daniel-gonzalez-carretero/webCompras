@@ -32,7 +32,7 @@
 
 		if($consulta != null){
 			setcookie("usuario", $consulta["nif"], time() + (86400 * 30), "/");
-			echo "<p>¡Sesión iniciada!</p>";
+			header("location: welcome.php"); 
 		} else {
 			echo "<p>Usuario y/o la contraseña no es correcta.</p>";
 		}
