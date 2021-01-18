@@ -1,5 +1,9 @@
 <?php
-	setcookie("usuario","", time() - 3600);
+	if(isset($_SESSION["usuario"])){
+		session_unset();
+		session_destroy();
+	}
+	
 ?>
 <!DOCTYPE html>
 <html>
@@ -32,7 +36,7 @@
 		$consulta = comprobarCliente($usuario, $clave);
 
 		if($consulta != null){
-			setcookie("usuario", $consulta["nif"], time() + (86400 * 30), "/");
+			$_SESSION["usuario"] = $consulta["nif"];
 			header("location: welcome.php"); 
 		}	
 
