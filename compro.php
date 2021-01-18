@@ -1,28 +1,33 @@
-<!--
-    Código por:         Raquel Alcázar 
-    Refactorizado por:  Daniel González Carretero
--->
-<?php
-	if (isset($_POST) && !empty($_POST)){
-	  // AGREGAR A LA CESTA DE LA COMPRA
-		if (isset($_POST["agregar"]) && !empty($_POST["agregar"])) {
+<?php 
 
-		    if (!isset($_COOKIE["cesta"])) {
-		    	$cesta[$_POST["producto"]]=$_POST["cantidad"];
-			  	$_COOKIE["cesta"]=$cesta;
-			  	echo "hola";
-			}else{
-				$cesta=$_COOKIE["cesta"];
-				$cesta[$_POST["producto"]]=$_POST["cantidad"];
-				$_COOKIE["cesta"]=$cesta;
-				echo "adios";
+	if (isset($_POST) && !empty($_POST) && isset($_POST["agregarCesta"])) {
+		// Si se quiere agregar el producto a la cesta
+
+		if (isset($_COOKIE) && !empty($_COOKIE) && isset($_COOKIE["usuario"])) {
+			// Se comprueba también el usuario, porque si no ha iniciado sesión, no debería poder hacer nada en esta página
+
+			$cestaCompra = array();
+
+			if (isset($_COOKIE["cesta"])) {
+
+				$cestaCompra = unserialize($_COOKIE["cesta"]);
+				setcookie("cesta", "eliminado", time() - (86400 * 30), "/"); // Se borra la cookie para evitar errores [NO FUNCIONA, NO SE BORRA]
 			}
-		    	
+
+			$producto = $_POST["producto"];
+			$cantidad = intval($_POST["cantidad"]);
+
+			// Si el producto ya está en la cesta, se le suma la cantidad añadida a la que ya estaba añadida (no sé si tiene sentido lo que estoy escribiendo)
+			// [ESTO TAMPOCO FUNCIONA, NO SE ACTUALIZA EL ARRAY]
+			if (in_array($producto, $cestaCompra)) { echo "already: "; $cestaCompra[$producto] += $cantidad; var_dump($cestaCompra); }
+			else { $cestaCompra[$producto] = $cantidad; } // Si es la primera vez que se añade, se crea el index con su cantidad
+
+			setcookie("cesta", serialize($cestaCompra), time() + (86400 * 30), "/");	
 		}
-		
-		print_r($_COOKIE["cesta"]);
+
 
 	}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -40,6 +45,10 @@
 		include_once("funciones.php");
 		$productos = obtenerProductos();
 		$clientes = obtenerClientes();
+
+		if (!(isset($_COOKIE) && !empty($_COOKIE) && isset($_COOKIE["usuario"]))) {
+			echo "<p>Parece que no has iniciado sesión aún... Haz click <a href=\"inicioSesion.php\">aquí para iniciar sesión</a>, o <a href=\"comaltacli.php\">aquí para registrarte</a> si aún no lo has hecho.</p>";
+		} else {
 	?>
 	<form method='post' action='<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>'>
 		<label for="producto">Producto:</label>
@@ -50,26 +59,28 @@
                     echo "<option value='". $producto["ID_PRODUCTO"] ."'>[". $producto["ID_PRODUCTO"] ."]: ". $producto["NOMBRE"] ."</option>";
                 }
 			?>
-		</select><br><br>
+		</select><br>
 
 		<label for="cantidad">Cantidad:</label>
-		<input type="number" name="cantidad" min="1" required></br></br>
+		<input type="number" name="cantidad" min="1" required></br><br>
 
-		<input type="submit" value="Comprar" name="comprar">
-		<input type="submit" value="Agregar a la Cesta" name="agregar">
-		<input type="submit" value="Limpiar la Cesta" name="limpiar">
+
+		<input type='submit' value='Comprar todos los productos de la cesta' name='comprarTodo'><br>
+		<input type='submit' value='Añadir a la cesta' name='agregarCesta'><br>
+		<input type="reset" value="Borrar los datos">
 	</form>
 	<?php	
+		}
 
-		if (isset($_POST) && !empty($_POST)) {
+		/*if (isset($_POST) && !empty($_POST)) {
 			$id_producto = $_POST["producto"];
-			$nif_cliente = $_COOKIE["usuario"];
+			$nif_cliente = $_POST["cliente"];
 			$cantidad = $_POST["cantidad"];
 
 			if ( realizarCompraProducto($nif_cliente, $id_producto, $cantidad) ) {
 				echo "<p>La compra se ha realizado correctamente</p>";
 			} // Si la función devuelve FALSE, es la propia función quien devuelve el mensaje de error
-		}
+		}*/
 
 	?>	
 </body>
