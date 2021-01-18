@@ -914,4 +914,36 @@ function comprobarCliente($usuario, $clave){
 		return null;
 	}
 }
+//
+function generar_sesion($usuario,$password) {
+	# Función 'generar_sesion'. 
+	# Parámetros: 
+	# 	- $usuario (usuario del cliente)
+	#	- $password (contraseña del cliente)
+	#
+	# Funcionalidad:
+	# Comprobar que existe un cliente con ese $usuario y $password; genera una sesion con el codigo de la base datos.
+	#
+	# Retorna: Nada.
+	#
+	# Código por Marco Santiago
+	global $conexion;
+
+	try {
+		$consulta = $conexion->prepare("SELECT NIF FROM cliente WHERE usuario=:usuario and password=:password");
+		$consulta->bindParam(":usuario", $usuario);
+		$consulta->bindParam(":password", $password);
+		$consulta->execute();
+		$nif = $consulta -> fetch(PDO::FETCH_ASSOC);
+
+		if($nif["NIF"]==null){
+			echo "Datos incorrectos.";
+		}else{
+			$_SESSION['user_nif'] = $nif;
+		}
+	}
+	catch (PDOException $ex) {
+		echo "<p>Usuario no valido". $ex->getMessage()."</p></br>";
+	}
+}
 ?>
