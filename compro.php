@@ -1,7 +1,8 @@
 <?php 
+	include_once("funciones.php");
 
 	//setcookie("cesta", "eliminado", time() - (86400 * 30), "/"); // Para borrar la Cookie, cuando se intente probar (para empezar sin productos, vaya)
-	if (isset($_POST) && !empty($_POST) && isset($_POST["agregarCesta"])) {
+	if (isset($_POST) && !empty($_POST) && isset($_POST["agregarCesta"]) && isset($_POST["producto"]) ) {
 		// Si se quiere agregar el producto a la cesta
 
 		if (isset($_COOKIE) && !empty($_COOKIE) && isset($_COOKIE["usuario"])) {
@@ -9,7 +10,8 @@
 
 			$idProducto = $_POST["producto"];  # ID del producto a añadir
 			$cantidadSumar = intval($_POST["cantidad"]); # Cantidad de ese producto a añadir
-
+			$stockTotal = consultarStockTotal($idProducto)["cantidadProducto"]; # Cantidad total que hay en los almacenes
+			
 			if (isset($_COOKIE["cesta"])) {
 	
 				$cestaString = $_COOKIE["cesta"];
@@ -18,28 +20,36 @@
 					$stringBuscar = '"' . $idProducto . '";i:'; # String a buscar en la cesta serializada
 					$cantidadActual = intval(substr($cestaString, strpos($cestaString, $stringBuscar) + strlen($stringBuscar), 10)); # Se obtiene, de la cesta serializada, la cantidad actual de ese producto en la cesta
 
-					// Se buscan los extremos del String de la cesta (omitiendo la parte central, que correspondería al producto que se está 'añadiendo')
-					$izq  = substr($cestaString, 0, strpos($cestaString, $stringBuscar));
-					$dcha = substr($cestaString, strpos($cestaString, $stringBuscar) + strlen($stringBuscar) + strlen(strval($cantidadActual)), strlen($cestaString));
+					
+					if ($stockTotal != null && $stockTotal >= ($cantidadActual + $cantidadSumar)) {
 
-					// Se añade la nueva información a la cookie
-					setcookie("cesta", $izq . $stringBuscar . ($cantidadActual + $cantidadSumar) . $dcha , time() + (86400 * 30), "/");
+						// Se buscan los extremos del String de la cesta (omitiendo la parte central, que correspondería al producto que se está 'añadiendo')
+						$izq  = substr($cestaString, 0, strpos($cestaString, $stringBuscar));
+						$dcha = substr($cestaString, strpos($cestaString, $stringBuscar) + strlen($stringBuscar) + strlen(strval($cantidadActual)), strlen($cestaString));
+
+						// Se añade la nueva información a la cookie
+						setcookie("cesta", $izq . $stringBuscar . ($cantidadActual + $cantidadSumar) . $dcha , time() + (86400 * 30), "/");
+					} else {
+						echo "<p style='font-weight: bold;'>¡Oops! No hay tanta cantidad de ese producto en nuestros almacenes...</p>";
+					}
 				} else {
 					// Si el producto aún no está en la cesta, se añade sin más
-					
-					$numArray = intval(substr($cestaString, 2, 1)) + 1;
-					$cestaString = substr($cestaString, 3, strlen($cestaString) - 4);
-					$cestaString = $cestaString . "s:". strlen($idProducto) . ':"'. $idProducto .'";i:'. $cantidadSumar .";}";
-					setcookie("cesta", "a:" . $numArray . $cestaString , time() + (86400 * 30), "/");
-
+						
+					if ($stockTotal != null && $stockTotal >= $cantidadSumar) {
+						$numArray = intval(substr($cestaString, 2, 1)) + 1;
+						$cestaString = substr($cestaString, 3, strlen($cestaString) - 4);
+						$cestaString = $cestaString . "s:". strlen($idProducto) . ':"'. $idProducto .'";i:'. $cantidadSumar .";}";
+						setcookie("cesta", "a:" . $numArray . $cestaString , time() + (86400 * 30), "/");
+					} else {
+						echo "<p style='font-weight: bold;'>¡Oops! No hay tanta cantidad de ese producto en nuestros almacenes...</p>";
+					}
 				}
 
 			} else {
 				setcookie("cesta", serialize(array($idProducto => $cantidadSumar)), time() + (86400 * 30), "/");
 			}
-		
-		}
-	}
+		} // NO SE HA INICIADO SESIÓN
+	} // NO SE HA ENVIADO UNA PETICION POST
 
 ?>
 <!DOCTYPE html>
