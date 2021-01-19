@@ -1,10 +1,23 @@
 <?php
-	if(isset($_SESSION["usuario"])){
-		session_unset();
-		session_destroy();
-	}
+	session_start();
+	include_once("funciones.php");
 	
+	if (isset($_POST) && !empty($_POST)) {
+
+		$usuario = $_POST["usuario"];
+		$clave = $_POST["clave"];
+
+		$consulta = comprobarCliente($usuario, $clave);
+
+		if($consulta != null){
+			$_SESSION["usuario"] = $consulta["nif"];
+			header("location: welcomeS.php"); 
+		}	
+
+	}
+			
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,21 +38,4 @@
 	</form>
 </body>
 </html>
-<?php	
-	include_once("funciones.php");
 
-	if (isset($_POST) && !empty($_POST)) {
-
-		$usuario = $_POST["usuario"];
-		$clave = $_POST["clave"];
-
-		$consulta = comprobarCliente($usuario, $clave);
-
-		if($consulta != null){
-			$_SESSION["usuario"] = $consulta["nif"];
-			header("location: welcome.php"); 
-		}	
-
-	}
-				
-?>
