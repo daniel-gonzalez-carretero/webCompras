@@ -11,7 +11,7 @@
 
 		if($consulta != null){
 			$_SESSION["usuario"] = $consulta["nif"];
-			header("location: welcomeS.php"); 
+			header("location: welcome.php"); 
 		}	
 
 	}
