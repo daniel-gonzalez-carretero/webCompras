@@ -103,7 +103,7 @@ En caso de que vayas a seguir escribiendo código, por favor consulta las nuevas
 #### Puedes ver ejemplos de estas Reglas de Formato, aplicadas a los ficheros de los diez primeros apartados.
 
 
-###Cambios 19/01/2021.
+#### Cambios 19/01/2021.
 - Actualizado index.html en el brach de COOKIES y en el de SESIONES.
 - Corregido enlace erróneo en welcome.php hacia compro.php.
 
