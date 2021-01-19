@@ -105,5 +105,4 @@ En caso de que vayas a seguir escribiendo código, por favor consulta las nuevas
 
 ### Cambios 19/01/2021.
 - Actualizado index.html.
-- Corregido enlace erróneo en welcome.php hacia compro.php.
 
