@@ -1,31 +1,44 @@
 <?php 
 
+	//setcookie("cesta", "eliminado", time() - (86400 * 30), "/"); // Para borrar la Cookie, cuando se intente probar (para empezar sin productos, vaya)
 	if (isset($_POST) && !empty($_POST) && isset($_POST["agregarCesta"])) {
 		// Si se quiere agregar el producto a la cesta
 
 		if (isset($_COOKIE) && !empty($_COOKIE) && isset($_COOKIE["usuario"])) {
 			// Se comprueba también el usuario, porque si no ha iniciado sesión, no debería poder hacer nada en esta página
 
-			$cestaCompra = array();
+			$idProducto = $_POST["producto"];  # ID del producto a añadir
+			$cantidadSumar = intval($_POST["cantidad"]); # Cantidad de ese producto a añadir
 
 			if (isset($_COOKIE["cesta"])) {
+	
+				$cestaString = $_COOKIE["cesta"];
 
-				$cestaCompra = unserialize($_COOKIE["cesta"]);
-				setcookie("cesta", "eliminado", time() - (86400 * 30), "/"); // Se borra la cookie para evitar errores [NO FUNCIONA, NO SE BORRA]
+				if (strpos($cestaString, $idProducto) != false) { # Si el producto ESTÁ ya añadido a la cesta
+					$stringBuscar = '"' . $idProducto . '";i:'; # String a buscar en la cesta serializada
+					$cantidadActual = intval(substr($cestaString, strpos($cestaString, $stringBuscar) + strlen($stringBuscar), 10)); # Se obtiene, de la cesta serializada, la cantidad actual de ese producto en la cesta
+
+					// Se buscan los extremos del String de la cesta (omitiendo la parte central, que correspondería al producto que se está 'añadiendo')
+					$izq  = substr($cestaString, 0, strpos($cestaString, $stringBuscar));
+					$dcha = substr($cestaString, strpos($cestaString, $stringBuscar) + strlen($stringBuscar) + strlen(strval($cantidadActual)), strlen($cestaString));
+
+					// Se añade la nueva información a la cookie
+					setcookie("cesta", $izq . $stringBuscar . ($cantidadActual + $cantidadSumar) . $dcha , time() + (86400 * 30), "/");
+				} else {
+					// Si el producto aún no está en la cesta, se añade sin más
+					
+					$numArray = intval(substr($cestaString, 2, 1)) + 1;
+					$cestaString = substr($cestaString, 3, strlen($cestaString) - 4);
+					$cestaString = $cestaString . "s:". strlen($idProducto) . ':"'. $idProducto .'";i:'. $cantidadSumar .";}";
+					setcookie("cesta", "a:" . $numArray . $cestaString , time() + (86400 * 30), "/");
+
+				}
+
+			} else {
+				setcookie("cesta", serialize(array($idProducto => $cantidadSumar)), time() + (86400 * 30), "/");
 			}
-
-			$producto = $_POST["producto"];
-			$cantidad = intval($_POST["cantidad"]);
-
-			// Si el producto ya está en la cesta, se le suma la cantidad añadida a la que ya estaba añadida (no sé si tiene sentido lo que estoy escribiendo)
-			// [ESTO TAMPOCO FUNCIONA, NO SE ACTUALIZA EL ARRAY]
-			if (in_array($producto, $cestaCompra)) { echo "already: "; $cestaCompra[$producto] += $cantidad; var_dump($cestaCompra); }
-			else { $cestaCompra[$producto] = $cantidad; } // Si es la primera vez que se añade, se crea el index con su cantidad
-
-			setcookie("cesta", serialize($cestaCompra), time() + (86400 * 30), "/");	
+		
 		}
-
-
 	}
 
 ?>
