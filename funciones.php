@@ -971,6 +971,168 @@ function consultarStockTotal($id_producto){
 
 }
 
+function obtenerNombreProducto($id_producto){
+# Función 'obtenerNombreProducto'. 
+# Parámetros: 
+# 	- $id_producto (id de un producto)
+#
+# Funcionalidad:
+# Recuperar el nombre de un producto en función a su id.
+#
+# Retorna: Los datos (nombre) del producto / NULL si no existe el cliente o ha ocurrido un error
+#
+# Código por Raquel Alcázar Mesia
+	global $conexion;
+
+	try {
+		$consulta = $conexion->prepare("SELECT nombre FROM producto WHERE id_producto = :id_producto");
+		$consulta->bindParam(":id_producto", $id_producto);
+		$consulta->execute();
+		$datos = $consulta -> fetch(PDO::FETCH_ASSOC);
+
+		return $datos;
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver los datos del producto que se busca por este NIF: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		return null;
+	}
+}
+
+function realizarCompra($cesta, $nifCliente){
+# Función 'realizarCompra'. 
+# Parámetros: 
+# 	- $cesta (cesta de la compra)
+#	- $nifCliente (nif del cliente que realiza la compra)
+#
+# Funcionalidad:
+# Realizar la compra de los productos de la $cesta.
+#
+# Retorna: TRUE / FALSE, según si se ha podido o no realizar la compra (por cualquier motivo. Se justifica con un echo)
+#
+# Código por Raquel Alcázar
+# Refactorizado por Daniel González Carretero
+
+	global $conexion;
+
+	
+
+	foreach ($cesta as $producto => $cantidadCompra) {
+		
+		$stockProducto = consultarStockTotal($producto);
+
+		$cestaAux[$producto]=array("CantidadStock" => $stockProducto["cantidadProducto"],
+									"CantidadCompra" => $cantidadCompra,
+								);
+
+	}
+
+	print_r($cestaAux);
+
+	$comprar=true;
+
+		foreach ($cestaAux as $producto => $cantidad) {
+
+			if($cantidad["CantidadStock"]==null){
+		
+				$nombre = obtenerNombreProducto($producto);
+
+				echo $nombre["nombre"] .": El producto ya no está disponible.</br>";
+
+				$comprar=false;
+
+
+			}else if($cantidad["CantidadCompra"]> $cantidad["CantidadStock"]){
+				
+				$nombre = obtenerNombreProducto($producto);
+				echo $nombre["nombre"] .": No hay suficiente stock.</br>";
+
+				$comprar=false;
+
+			}
+			
+		}
+
+	if($comprar){
+
+		foreach ($cesta as $producto => $cantidadCompra) {
+		
+			$stock = consultarStock($producto);
+
+			$totalUnidadesComprar = $cantidadCompra; // Variable auxiliar, para no perder el valor de $cantidadCompra
+
+				try {
+					$conexion->beginTransaction();
+
+					foreach ($stock as $almacen => $informacion) {
+						// Se consulta cada almacén que tenga ese producto en Stock
+						if ($informacion["cantidadProducto"] >= $cantidadCompra) {
+							$cantidadRetirar = $cantidadCompra; // Si un almacén tiene la cantidad de producto restante, se retira todo lo que quede por retirar del total comprado
+						} else {
+							$cantidadRetirar = $informacion["cantidadProducto"]; // Si la cantidad de producto de un almacén no es suficiente, se retiran todos los productos de ese almacén
+						}
+
+						# PENDIENTE DE CONFIRMAR POR EL CLIENTE / SISTEMAS [¿Si un almacén tiene 0 uds. de un producto, se debe borrar de la tabla 'almacena'?]
+						# if ($cantidadRetirar == $informacion["cantidadProducto"]) {
+						#	$borrarAlmacen = $conexion->prepare("DELETE FROM almacena WHERE num_almacen = :numAlmacen AND id_producto = :idProducto");
+						#	$borrarAlmacen->bindParam(":numAlmacen", $informacion["numeroAlmacen"]);
+						#	$borrarAlmacen->bindParam(":idProducto", $id_producto);
+						#	$borrarAlmacen->execute();
+						#} else {
+
+						$actualizarCantidad = $conexion->prepare("UPDATE almacena SET cantidad = cantidad - :cantidadRetirar WHERE num_almacen = :numAlmacen AND id_producto = :idProducto");
+						$actualizarCantidad->bindParam(":cantidadRetirar", $cantidadRetirar);
+						$actualizarCantidad->bindParam(":numAlmacen", $informacion["numeroAlmacen"]);
+						$actualizarCantidad->bindParam(":idProducto", $producto);
+						$actualizarCantidad->execute();
+
+						#}
+
+						$cantidadCompra -= $cantidadRetirar;
+
+						if ($cantidadCompra <= 0) { // Si ya no hay que retirar ningún producto más, se sale del bucle FOREACH
+							break;
+						}
+					}
+
+				} catch (PDOException $ex) {
+					echo "<p>Ha ocurrido un error al actualizar el Stock de uno de los almacenes: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span>. La compra no se ha realizado.</p></br>";
+					$conexion->rollBack();
+					return false;
+				}
+
+				try {
+
+						$agregarCompra = $conexion->prepare("INSERT INTO compra VALUES (:nifCliente, :idProducto, CURRENT_TIMESTAMP, :cantidadComprada)");
+						$agregarCompra->bindParam(":nifCliente", $nifCliente);
+						$agregarCompra->bindParam(":idProducto", $producto);
+						$agregarCompra->bindParam(":cantidadComprada", $totalUnidadesComprar);
+						$agregarCompra->execute();
+
+						$conexion->commit();		
+
+				} catch (PDOException $ex) {
+					echo "<p>Ha ocurrido un error al intentar confirmar la Compra: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span>. La compra, finalmente, no se ha realizado.</p></br>";
+					$conexion->rollBack();
+					return false;
+				}
+
+
+			}
+		}else{
+			echo "</br> Lo sentimos, no se ha realizado la compra.";
+		}
+
+		return true;
+
+		
+# Cambios de Refactorización Realizados:
+# 	- Sustituido el parámetro $conn (conexión), por la globalización de la variable
+#	- Se añade el 'justificante' de la compra a la tabla 'compra' (INSERT en la tabla 'compra').
+#	- Se añade el parámetro 'nifCliente', para poder ejecutar el INSERT en la tabla 'compra'
+#	- Se añade la posibilidad de hacer un Roll Back si ocurre algún error a mitad del proceso
+#	- Modificada la documentación de la función, para una coherencia de estilo (no hay cambios, es la misma información de la versión previa)	
+}
+
 //
 function generar_sesion($usuario,$password) {
 	# Función 'generar_sesion'. 
