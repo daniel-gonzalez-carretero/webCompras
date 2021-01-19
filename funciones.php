@@ -914,6 +914,35 @@ function comprobarCliente($usuario, $clave){
 		return null;
 	}
 }
+
+function consultarStockTotal($id_producto){
+# Función 'consultarStock'. 
+# Parámetros: 
+# 	- $id_producto (ID del Producto del que se quiere consultar el Stock Disponible)
+#
+# Funcionalidad:
+# Obtener el stock total de un producto.
+#
+# Retorna: El número de unidades del producto almacenados / NULL si ocurre algún error, o no hay existencias
+#
+# Código por Raquel Alcázar
+
+	global $conexion;
+
+	try {
+
+		$obtenerStock = $conexion->prepare("SELECT sum(cantidad) AS 'cantidadProducto' FROM almacena WHERE id_producto = :idProducto and cantidad>0"); // cantidad > 0 para sólo mostrar almacenes con ese producto
+		$obtenerStock->bindParam(":idProducto", $id_producto);
+		$obtenerStock->execute();
+		return $obtenerStock->fetch(PDO::FETCH_ASSOC);
+
+	} catch (PDOException $ex) {
+		echo "<p>Ha ocurrido un error al devolver los datos del Stock del Producto: <span style='color: red; font-weight: bold;'>". $ex->getMessage()."</span></p></br>";
+		return null;
+	}
+
+}
+
 //
 function generar_sesion($usuario,$password) {
 	# Función 'generar_sesion'. 
