@@ -30,7 +30,7 @@
 <body>
 	<h1>Bienvenido <?php echo $datos["nombre"]; ?></h1>
 	<a href="welcome.php?cerrarSesion=true">Cerrar sesión</a>
-	<a href="comproC.php">Comprar productos</a>
+	<a href="compro.php">Comprar productos</a>
 	<a href="comconscom.php">Consultar compras</a>
 </body>
 </html>
